@@ -1,1 +1,2 @@
-FoodVerse
+FoodVerse:
+Next + Gin + GOrm
