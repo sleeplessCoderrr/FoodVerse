@@ -1,38 +1,6 @@
 version: '3.8'
 
 services:
-  backend:
-    build:
-      context: ./FoodVerse-backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./foodverse-backend:/app
-    working_dir: /app
-    ports:
-      - "8000:8000"
-    environment:
-      - GIN_MODE=debug
-    depends_on:
-      - db
-    networks:
-      - foodverse-net
-
-  frontend:
-    build:
-      context: /FoodVerse-frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ./foodverse-frontend:/app
-      - /app/node_modules
-    working_dir: /app
-    command: "npm run dev"
-    ports:
-      - "3000:3000"
-    environment:
-      - CHOKIDAR_USERPOOLING=true
-    networks:
-      - foodverse-net
-
   db:
     image: postgres:15
     ports:
