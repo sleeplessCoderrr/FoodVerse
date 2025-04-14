@@ -71,7 +71,7 @@ export default function SellersPage() {
     {
       name: "Enterprise",
       price: "Custom",
-      description: "For large chains and food service providers",
+      description: "For large chains and food services providers",
       features: [
         "Unlimited item listings",
         "Custom analytics solutions",
