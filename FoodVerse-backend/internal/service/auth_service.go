@@ -60,7 +60,7 @@ func (s *AuthService) Login(input *model.LoginInput) (*model.AuthResponse, error
 	user, err := s.userRepo.FindUserByEmail(input.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("invalid email or password")
+			return nil, errors.New("not found")
 		}
 		return nil, err
 	}

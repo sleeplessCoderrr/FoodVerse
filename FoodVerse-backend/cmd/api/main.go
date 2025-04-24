@@ -5,7 +5,6 @@ import (
 	"github.com/sleeplessCoderrr/FoodVerse/internal/config"
 	"github.com/sleeplessCoderrr/FoodVerse/internal/controller"
 	"github.com/sleeplessCoderrr/FoodVerse/internal/middleware"
-	"github.com/sleeplessCoderrr/FoodVerse/internal/model"
 	"github.com/sleeplessCoderrr/FoodVerse/internal/repository"
 	"github.com/sleeplessCoderrr/FoodVerse/internal/service"
 	"github.com/sleeplessCoderrr/FoodVerse/pkg/database"
@@ -22,20 +21,18 @@ func main() {
 		panic("failed to connect to database: " + err.Error())
 	}
 
-	err = db.AutoMigrate(&model.User{})
-	if err != nil {
-		panic("failed to migrate database: " + err.Error())
-	}
+	// migrations.Migrate(db)
 
 	userRepo := repository.NewUserRepository(db)
-	
+
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpirationHours)
 	authService := service.NewAuthService(userRepo, jwtService)
 
 	authController := controller.NewAuthController(authService)
 
+	// App Router
 	router := gin.Default()
-	
+
 	public := router.Group("/api/v1")
 	{
 		public.POST("/register", authController.Register)
@@ -48,7 +45,7 @@ func main() {
 		protected.GET("/user", authController.Profile)
 	}
 
-	if err := router.Run(":"+cfg.ServerPort); err != nil {
+	if err := router.Run(":" + cfg.ServerPort); err != nil {
 		panic("failed to start server: " + err.Error())
 	}
 

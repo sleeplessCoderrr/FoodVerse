@@ -92,9 +92,136 @@ func New{{.Name}}Repository(db *gorm.DB) *{{.Name}}Repository {
 func (r *{{.Name}}Repository) Create{{.Name}}(m *model.{{.Name}}) error {
 	return r.db.Create(m).Error
 }
+
+func (r *{{.Name}}Repository) Find{{.Name}}ById(id uint) (*model.{{.Name}}, error) {
+    var m model.{{.Name}}
+    err := r.db.First(&m, id).Error
+    if err != nil {
+        return nil, err
+    }
+    return &m, nil
+}
+
+func (r *{{.Name}}Repository) Update{{.Name}}(m *model.{{.Name}}) error {
+    return r.db.Save(m).Error
+}
+
+func (r *{{.Name}}Repository) Delete{{.Name}}ById(id uint) error {
+    return r.db.Delete(&model.{{.Name}}{}, id).Error
+}
+
+func (r *{{.Name}}Repository) GetAll{{.Name}}s() ([]model.{{.Name}}, error) {
+    var ms []model.{{.Name}}
+    err := r.db.Find(&ms).Error
+    if err != nil {
+        return nil, err
+    }
+    return ms, nil
+}
 `
     return writeTemplatedFile(filePath, tpl, name)
 }
+
+func createController(name string) error {
+    controllerDir := "internal/controller"
+    if err := os.MkdirAll(controllerDir, 0755); err != nil {
+        return err
+    }
+    filePath := filepath.Join(controllerDir, strings.ToLower(name)+"_controller.go")
+    const tpl = `package controller
+import (
+    "net/http"
+    "github.com/gin-gonic/gin"
+    "github.com/sleeplessCoderrr/FoodVerse/internal/model"
+    "github.com/sleeplessCoderrr/FoodVerse/internal/service"
+)
+
+type {{.Name}}Controller struct {
+    {{.Name}}Service *service.{{.Name}}Service
+}
+
+func New{{.Name}}Controller({{.Name}}Service *service.{{.Name}}Service) *{{.Name}}Controller {
+    return &{{.Name}}Controller{
+        {{.Name}}Service: {{.Name}}Service,
+    }
+}
+
+func (c *{{.Name}}Controller) Create{{.Name}}(ctx *gin.Context) {
+    var input model.{{.Name}}Input
+    if err := ctx.ShouldBindJSON(&input); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    {{.Name}}Response, err := c.{{.Name}}Service.Create{{.Name}}(&input)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusCreated, {{.Name}}Response)
+}
+
+func (c *{{.Name}}Controller) Get{{.Name}}(ctx *gin.Context) {  
+    id := ctx.Param("id")
+    {{.Name}}, err := c.{{.Name}}Service.Get{{.Name}}(id)
+    if err != nil {
+        ctx.JSON(http.StatusNotFound, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusOK, {{.Name}})
+}
+
+func (c *{{.Name}}Controller) Update{{.Name}}(ctx *gin.Context) {
+    id := ctx.Param("id")
+    var input model.{{.Name}}Input
+    if err := ctx.ShouldBindJSON(&input); err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    {{.Name}}Response, err := c.{{.Name}}Service.Update{{.Name}}(id, &input)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusOK, {{.Name}}Response)
+}
+
+func (c *{{.Name}}Controller) Delete{{.Name}}(ctx *gin.Context) {
+    id := ctx.Param("id")
+    err := c.{{.Name}}Service.Delete{{.Name}}(id)
+    if err != nil {
+        ctx.JSON(http.StatusNotFound, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusNoContent, nil)
+}
+
+func (c *{{.Name}}Controller) GetAll{{.Name}}s(ctx *gin.Context) {
+    {{.Name}}s, err := c.{{.Name}}Service.GetAll{{.Name}}s()
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{
+            "error": err.Error(),
+        })
+        return
+    }
+    ctx.JSON(http.StatusOK, {{.Name}}s)
+}
+`
+    return writeTemplatedFile(filePath, tpl, name)
+}
+
+
 
 // writeTemplatedFile writes a parsed Go template to disk
 func writeTemplatedFile(path, tmplStr, name string) error {

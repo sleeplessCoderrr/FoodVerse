@@ -35,7 +35,7 @@ func (s *JWTService) GenerateToken(userId uint) (string, time.Time, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(s.secretKey))
 
 	return tokenString, expirationTime, err

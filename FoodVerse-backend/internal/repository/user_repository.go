@@ -34,3 +34,20 @@ func (r *UserRepository) FindUserById (id uint) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) UpdateUser(user *model.User) error {
+	return r.db.Save(user).Error
+}
+
+func (r *UserRepository) DeleteUserById(id uint) error {
+	return r.db.Delete(&model.User{}, id).Error
+}
+
+func (r *UserRepository) GetAllUsers() ([]model.User, error) {
+	var users []model.User
+	err := r.db.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
