@@ -48,7 +48,7 @@ func main() {
 		protected.GET("/user", authController.Profile)
 	}
 
-	if err := router.Run(cfg.ServerPort); err != nil {
+	if err := router.Run(":"+cfg.ServerPort); err != nil {
 		panic("failed to start server: " + err.Error())
 	}
 

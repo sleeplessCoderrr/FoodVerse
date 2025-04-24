@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -33,15 +34,17 @@ func LoadConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		DBHost: 		   	getEnv("DB_HOST", "localhost"),
-		DBPort: 		   	getEnv("DB_PORT", "5432"),
-		DBUser: 		   	getEnv("DB_USER", "foodverse"),
-		DBPassword: 	   	getEnv("DB_PASSWORD", "foodverse"),
-		DBName: 		   	getEnv("DB_NAME", "foodverse"),
-		ServerPort: 	   	getEnv("SERVER_PORT", "8080"),
-		JWTSecret: 	       	getEnv("JWT_SECRET", "your_jwt_secret"),
+		DBHost:             getEnv("DB_HOST", "localhost"),
+		DBPort:             getEnv("DB_PORT", "5432"),
+		DBUser:             getEnv("DB_USER", "foodverse"),
+		DBPassword:         getEnv("DB_PASSWORD", "foodverse"),
+		DBName:             getEnv("DB_NAME", "foodverse"),
+		ServerPort:         getEnv("SERVER_PORT", "8080"),
+		JWTSecret:          getEnv("JWT_SECRET", "your_jwt_secret"),
 		JWTExpirationHours: jwtHours,
 	}
+
+	fmt.Println(config.ServerPort)
 
 	return config, nil
 }
