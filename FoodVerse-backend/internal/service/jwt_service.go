@@ -31,7 +31,7 @@ func (s *JWTService) GenerateToken(userId uint) (string, time.Time, error) {
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
@@ -41,7 +41,7 @@ func (s *JWTService) GenerateToken(userId uint) (string, time.Time, error) {
 	return tokenString, expirationTime, err
 }
 
-func (s *JWTService) ParseToken(tokenString string) (*JWTClaims, error){
+func (s *JWTService) ParseToken(tokenString string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&JWTClaims{},
@@ -60,4 +60,4 @@ func (s *JWTService) ParseToken(tokenString string) (*JWTClaims, error){
 	}
 
 	return claims, nil
-} 
+}

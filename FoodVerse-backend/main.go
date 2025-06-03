@@ -1,10 +1,9 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
 */
 package main
 
-import "github.com/sleeplessCoderrr/FoodVerse/cmd"
+import "github.com/FoodVerse/FoodVerse-backend/cmd"
 
 func main() {
 	cmd.Execute()

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/sleeplessCoderrr/FoodVerse/internal/model"
+	"github.com/FoodVerse/FoodVerse-backend/internal/model"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +26,7 @@ func (r *UserRepository) FindUserByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) FindUserById (id uint) (*model.User, error) {
+func (r *UserRepository) FindUserById(id uint) (*model.User, error) {
 	var user model.User
 	err := r.db.First(&user, id).Error
 	if err != nil {

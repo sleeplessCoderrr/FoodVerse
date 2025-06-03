@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FoodVerse/FoodVerse-backend/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/sleeplessCoderrr/FoodVerse/internal/service"
 )
 
 func JWTAuthMiddleware(jwtService *service.JWTService) gin.HandlerFunc {

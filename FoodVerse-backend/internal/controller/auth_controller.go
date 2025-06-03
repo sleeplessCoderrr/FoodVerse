@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
+	"github.com/FoodVerse/FoodVerse-backend/internal/model"
+	"github.com/FoodVerse/FoodVerse-backend/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/sleeplessCoderrr/FoodVerse/internal/model"
-	"github.com/sleeplessCoderrr/FoodVerse/internal/service"
 )
 
 type AuthController struct {

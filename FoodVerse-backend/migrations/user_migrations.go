@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/sleeplessCoderrr/FoodVerse/internal/model"
+	"github.com/FoodVerse/FoodVerse-backend/internal/model"
 	"gorm.io/gorm"
 )
 

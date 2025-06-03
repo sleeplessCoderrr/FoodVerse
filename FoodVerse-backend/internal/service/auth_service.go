@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"github.com/sleeplessCoderrr/FoodVerse/internal/model"
-	"github.com/sleeplessCoderrr/FoodVerse/internal/repository"
+	"github.com/FoodVerse/FoodVerse-backend/internal/model"
+	"github.com/FoodVerse/FoodVerse-backend/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -33,11 +33,13 @@ func (s *AuthService) Register(input *model.UserInput) (*model.AuthResponse, err
 	if err != nil {
 		return nil, err
 	}
-
 	user := &model.User{
 		Name:     input.Name,
 		Email:    input.Email,
 		Password: string(hashhedPassword),
+		UserType: input.UserType,
+		Phone:    input.Phone,
+		Address:  input.Address,
 	}
 
 	if err := s.userRepo.CreateUser(user); err != nil {

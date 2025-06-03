@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/sleeplessCoderrr/FoodVerse/internal/config"
+	"github.com/FoodVerse/FoodVerse-backend/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
