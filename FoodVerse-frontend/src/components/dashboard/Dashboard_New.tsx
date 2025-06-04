@@ -1,9 +1,9 @@
 import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/components/ToastProvider'
+import { useToast } from '@/components/shared/ToastProvider'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { ConsumerDashboard } from '@/components/ConsumerDashboard'
-import { BusinessDashboard } from '@/components/BusinessDashboard'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { ConsumerDashboard } from '@/components/dashboard/ConsumerDashboard'
+import { BusinessDashboard } from '@/components/dashboard/BusinessDashboard'
 import { LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 

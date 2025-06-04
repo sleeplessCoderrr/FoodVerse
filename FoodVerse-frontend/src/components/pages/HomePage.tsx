@@ -1,11 +1,52 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Heart, MapPin, Clock, Star, Users, ShoppingBag, Store, Leaf, Target, Shield, Award, ChefHat, Coffee, UtensilsCrossed, Smartphone, Timer, Globe, TrendingUp, CheckCircle, PlayCircle } from "lucide-react"
+import { ArrowRight, Heart, MapPin, Clock, Star, Users, ShoppingBag, Store, Leaf, Target, Shield, Award, Smartphone, Timer, Globe, TrendingUp, CheckCircle, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/shared/theme-toggle"
 import { motion } from "framer-motion"
+import Particles from "react-tsparticles"
+import { loadSlim } from "tsparticles-slim"
+import type { Engine } from "tsparticles-engine"
+import { useCallback, useState, useEffect } from "react"
+import { statsService, type AppStats, type FeaturedStore } from "@/services/statsService"
 
 export function HomePage() {
+  // State for dynamic data
+  const [appStats, setAppStats] = useState<AppStats>({
+    totalUsers: 25000,
+    totalStores: 800,
+    totalMealsSaved: 150000,
+    totalFoodWastePrevented: '250 tons'
+  })
+  const [featuredStores, setFeaturedStores] = useState<FeaturedStore[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Particles initialization
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadSlim(engine)
+  }, [])
+
+  // Fetch real data from database
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true)
+        const [stats, stores] = await Promise.all([
+          statsService.getAppStats(),
+          statsService.getFeaturedStores()
+        ])
+        setAppStats(stats)
+        setFeaturedStores(stores)
+      } catch (error) {
+        console.error('Error fetching homepage data:', error)
+        // Keep fallback data if API fails
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
   const howItWorks = [
     {
       step: "1",
@@ -32,12 +73,12 @@ export function HomePage() {
       description: "Enjoy great food while contributing to a more sustainable planet"
     }
   ]
-
+  // Dynamic stats based on real data
   const stats = [
-    { icon: <Users className="h-6 w-6" />, value: "25,000+", label: "Happy Users" },
-    { icon: <Store className="h-6 w-6" />, value: "800+", label: "Partner Stores" },
-    { icon: <ShoppingBag className="h-6 w-6" />, value: "150,000+", label: "Meals Saved" },
-    { icon: <Leaf className="h-6 w-6" />, value: "250 tons", label: "Food Waste Prevented" }
+    { icon: <Users className="h-6 w-6" />, value: `${appStats.totalUsers.toLocaleString()}+`, label: "Happy Users" },
+    { icon: <Store className="h-6 w-6" />, value: `${appStats.totalStores.toLocaleString()}+`, label: "Partner Stores" },
+    { icon: <ShoppingBag className="h-6 w-6" />, value: `${appStats.totalMealsSaved.toLocaleString()}+`, label: "Meals Saved" },
+    { icon: <Leaf className="h-6 w-6" />, value: appStats.totalFoodWastePrevented, label: "Food Waste Prevented" }
   ]
 
   const benefits = [
@@ -84,16 +125,93 @@ export function HomePage() {
           </div>
         </div>
       </nav>      
-      
-      {/* Hero Section */}
+        {/* Hero Section */}
       <motion.section 
-        className="relative py-20 lg:py-32 overflow-hidden"
+        className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 mt-16 overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-      >
-        {/* Background Elements */}
+      >{/* Background Elements */}
         <div className="absolute inset-0">
+          {/* Particles Background */}
+          <Particles
+            id="tsparticles"
+            init={particlesInit}
+            options={{
+              background: {
+                color: {
+                  value: "transparent",
+                },
+              },
+              fpsLimit: 60,
+              interactivity: {
+                events: {
+                  onClick: {
+                    enable: true,
+                    mode: "push",
+                  },
+                  onHover: {
+                    enable: true,
+                    mode: "repulse",
+                  },
+                  resize: true,
+                },
+                modes: {
+                  push: {
+                    quantity: 4,
+                  },
+                  repulse: {
+                    distance: 100,
+                    duration: 0.4,
+                  },
+                },
+              },
+              particles: {
+                color: {
+                  value: "#059669",
+                },
+                links: {
+                  color: "#059669",
+                  distance: 150,
+                  enable: true,
+                  opacity: 0.2,
+                  width: 1,
+                },
+                collisions: {
+                  enable: true,
+                },
+                move: {
+                  direction: "none",
+                  enable: true,
+                  outModes: {
+                    default: "bounce",
+                  },
+                  random: false,
+                  speed: 1,
+                  straight: false,
+                },
+                number: {
+                  density: {
+                    enable: true,
+                    area: 800,
+                  },
+                  value: 60,
+                },
+                opacity: {
+                  value: 0.3,
+                },
+                shape: {
+                  type: "circle",
+                },
+                size: {
+                  value: { min: 1, max: 3 },
+                },
+              },
+              detectRetina: true,
+            }}
+            className="absolute inset-0"
+          />
+          
           <motion.div 
             className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"
             animate={{ 
@@ -304,7 +422,9 @@ export function HomePage() {
                 ))}
               </div>
             </div>
-          </div>        </motion.section>      {/* Features Section - Split Layout with Interactive Elements */}
+          </div>        
+          </motion.section>      
+          {/* Features Section - Split Layout with Interactive Elements */}
       <motion.section 
         className="py-20 glass relative overflow-hidden"
         initial={{ opacity: 0 }}
@@ -525,8 +645,7 @@ export function HomePage() {
               </div>
             ))}
           </div>
-          
-          {/* Call to Action in Stats */}
+            {/* Call to Action in Stats */}
           <div className="mt-16 text-center">
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-primary-foreground/20 backdrop-blur-sm">
               <TrendingUp className="h-5 w-5 mr-2" />
@@ -534,7 +653,122 @@ export function HomePage() {
             </div>
           </div>
         </div>
-      </section>      {/* Testimonials Section */}
+      </section>
+
+      {/* Featured Stores Section */}
+      <motion.section 
+        className="py-20 glass relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.h2 
+              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Featured Partner Stores
+            </motion.h2>
+            <motion.p 
+              className="text-xl text-muted-foreground max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              Discover amazing local businesses making a difference in their communities
+            </motion.p>
+          </div>
+
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, index) => (
+                <div key={index} className="glass-card p-6 rounded-2xl border-0 animate-pulse">
+                  <div className="w-full h-48 bg-muted rounded-xl mb-4"></div>
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-2/3 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredStores.slice(0, 4).map((store, index) => (
+                <motion.div
+                  key={store.id}
+                  className="glass-card rounded-2xl border-0 overflow-hidden hover:shadow-xl transition-all duration-300 group"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -10 }}
+                >
+                  <div className="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center relative overflow-hidden">
+                    {store.image_url ? (
+                      <img 
+                        src={store.image_url} 
+                        alt={store.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <Store className="h-12 w-12 text-primary/50" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-foreground text-lg group-hover:text-primary transition-colors">
+                        {store.name}
+                      </h3>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {store.category} • {store.address}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`h-3 w-3 ${
+                              i < Math.floor(store.rating) 
+                                ? 'fill-primary text-primary' 
+                                : 'text-muted-foreground/30'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                      <Button size="sm" variant="ghost" className="text-xs hover:text-primary">
+                        View Store
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {featuredStores.length > 4 && (
+            <div className="text-center mt-12">
+              <Button variant="outline" size="lg" className="group">
+                View All Stores
+                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>          )}
+        </div>
+      </motion.section>
+
+      {/* Testimonials Section */}
       <section className="py-20 glass relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">

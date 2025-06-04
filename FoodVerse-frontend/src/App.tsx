@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { LoginPage } from './components/LoginPage'
-import { RegisterPage } from './components/RegisterPage'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import { HomePage } from './components/HomePage'
+import { LoginPage } from './components/auth/LoginPage'
+import { RegisterPage } from './components/auth/RegisterPage'
+import { ProtectedRoute } from './components/shared/ProtectedRoute'
+import { HomePage } from './components/pages/HomePage'
 import { useAuth } from './contexts/AuthContext'
-import Dashboard from './components/Dashboard'
+import Dashboard from './components/dashboard/Dashboard'
 
 function App() {
   const { isAuthenticated, isLoading } = useAuth()
