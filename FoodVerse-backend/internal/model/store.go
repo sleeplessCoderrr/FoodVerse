@@ -60,3 +60,22 @@ type StoreResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+func (s *Store) ToResponse() StoreResponse {
+	return StoreResponse{
+		ID:          s.ID,
+		Name:        s.Name,
+		Description: s.Description,
+		Address:     s.Address,
+		Latitude:    s.Latitude,
+		Longitude:   s.Longitude,
+		Phone:       s.Phone,
+		Email:       s.Email,
+		Category:    s.Category,
+		ImageURL:    s.ImageURL,
+		Rating:      s.Rating,
+		Distance:    0, // Will be calculated in search
+		CreatedAt:   s.CreatedAt,
+		UpdatedAt:   s.UpdatedAt,
+	}
+}

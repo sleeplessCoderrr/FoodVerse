@@ -2,6 +2,7 @@ import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { ConsumerDashboard } from './ConsumerDashboard'
 import { BusinessDashboard } from './BusinessDashboard'
+import { AdminDashboard } from './AdminDashboard'
 
 const Dashboard: React.FC = () => {
   const { user, isLoading } = useAuth()
@@ -26,13 +27,14 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     )
-  }
-  // Route to appropriate dashboard based on user type
+  }  // Route to appropriate dashboard based on user type
   switch (user.user_type) {
     case 'consumer':
       return <ConsumerDashboard />
-    case 'business':
+    case 'seller':
       return <BusinessDashboard />
+    case 'admin':
+      return <AdminDashboard />
     default:
       return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-primary/5">

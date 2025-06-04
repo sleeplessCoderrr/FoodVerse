@@ -29,7 +29,7 @@ export function Dashboard() {
             <h1 className="text-xl font-bold text-foreground">FoodVerse</h1>
             {user && (
               <span className="text-sm text-muted-foreground">
-                ({user.user_type === 'business' ? 'Business' : 'Consumer'})
+                ({user.user_type === 'seller' ? 'Seller' : 'Consumer'})
               </span>
             )}
           </div>
@@ -50,8 +50,7 @@ export function Dashboard() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Role-based dashboard content */}
-          {user?.user_type === 'business' ? (
+          {/* Role-based dashboard content */}          {user?.user_type === 'seller' ? (
             <BusinessDashboard />
           ) : (
             <ConsumerDashboard />

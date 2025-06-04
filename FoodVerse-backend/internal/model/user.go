@@ -10,7 +10,8 @@ type UserType string
 
 const (
 	UserTypeConsumer UserType = "consumer"
-	UserTypeBusiness UserType = "business"
+	UserTypeSeller   UserType = "seller"
+	UserTypeAdmin    UserType = "admin"
 )
 
 type User struct {

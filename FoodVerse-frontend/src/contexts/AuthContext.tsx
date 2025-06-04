@@ -6,7 +6,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string, userType: 'consumer' | 'business', phone?: string, address?: string) => Promise<void>
+  register: (name: string, email: string, password: string, userType: 'consumer' | 'seller', phone?: string, address?: string) => Promise<void>
   logout: () => void
 }
 
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const register = async (name: string, email: string, password: string, userType: 'consumer' | 'business', phone?: string, address?: string) => {
+  const register = async (name: string, email: string, password: string, userType: 'consumer' | 'seller', phone?: string, address?: string) => {
     setIsLoading(true)
     try {
       const response = await authService.register({ name, email, password, user_type: userType, phone, address })

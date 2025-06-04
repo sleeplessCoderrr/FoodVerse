@@ -20,8 +20,7 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Please confirm your password"),
   phone: z.string().optional(),
-  address: z.string().optional(),
-  userType: z.enum(["consumer", "business"], {
+  address: z.string().optional(),  userType: z.enum(["consumer", "seller"], {
     required_error: "Please select an account type",
   }),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -39,10 +38,9 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   // Get user type from URL parameter if provided
   const urlUserType = searchParams.get('type')
-  const initialUserType = (urlUserType === 'consumer' || urlUserType === 'business') ? urlUserType : 'consumer'
+  const initialUserType = (urlUserType === 'consumer' || urlUserType === 'seller') ? urlUserType : 'consumer'
   
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -56,10 +54,9 @@ export function RegisterPage() {
       userType: initialUserType,
     },
   })
-
   // Update form when URL parameter changes
   useEffect(() => {
-    if (urlUserType === 'consumer' || urlUserType === 'business') {
+    if (urlUserType === 'consumer' || urlUserType === 'seller') {
       form.setValue('userType', urlUserType)
     }
   }, [urlUserType, form])
@@ -289,15 +286,14 @@ export function RegisterPage() {
                           >
                             <Users className="h-4 w-4" />
                             <span>Consumer</span>
-                          </Button>
-                          <Button
+                          </Button>                          <Button
                             type="button"
-                            variant={field.value === "business" ? "default" : "outline"}
+                            variant={field.value === "seller" ? "default" : "outline"}
                             className="flex-1 h-12 flex items-center space-x-2"
-                            onClick={() => field.onChange("business")}
+                            onClick={() => field.onChange("seller")}
                           >
                             <Store className="h-4 w-4" />
-                            <span>Business</span>
+                            <span>Seller</span>
                           </Button>
                         </div>
                       </FormControl>

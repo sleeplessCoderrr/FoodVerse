@@ -1,8 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { LoginPage } from './components/auth/LoginPage'
 import { RegisterPage } from './components/auth/RegisterPage'
+import { SellerRequestForm } from './components/auth/SellerRequestForm'
 import { ProtectedRoute } from './components/shared/ProtectedRoute'
 import { HomePage } from './components/pages/HomePage'
+import { StoreDiscoveryPage } from './components/pages/StoreDiscoveryPage'
+import { StoreDetailPage } from './components/pages/StoreDetailPage'
 import { useAuth } from './contexts/AuthContext'
 import Dashboard from './components/dashboard/Dashboard'
 
@@ -38,6 +41,18 @@ function App() {
           element={
             isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
           } 
+        />
+        <Route 
+          path="/seller-request" 
+          element={<SellerRequestForm />} 
+        />
+        <Route 
+          path="/stores" 
+          element={<StoreDiscoveryPage />} 
+        />
+        <Route 
+          path="/stores/:storeId" 
+          element={<StoreDetailPage />} 
         />
         <Route
           path="/dashboard"

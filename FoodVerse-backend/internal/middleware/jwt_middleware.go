@@ -27,7 +27,6 @@ func JWTAuthMiddleware(jwtService *service.JWTService) gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-
 		claims, err := jwtService.ParseToken(parts[1])
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -36,6 +35,7 @@ func JWTAuthMiddleware(jwtService *service.JWTService) gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+		ctx.Set("userID", claims.UserId)
 		ctx.Set("user_id", claims.UserId)
 		ctx.Next()
 	}

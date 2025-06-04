@@ -17,6 +17,14 @@ export interface Store {
   updated_at: string
 }
 
+export interface StoreSearchRequest {
+  latitude: number
+  longitude: number
+  radius?: number // in kilometers, default 5km
+  category?: string
+  query?: string
+}
+
 export interface StoreInput {
   name: string
   description: string
@@ -44,25 +52,47 @@ export const storeService = {
     return { data: response.data }
   },
 
+  // Get all stores (for browsing without location)
+  async getAllStores(): Promise<{ data: Store[] }> {
+    // Use a default location-based search with wide radius
+    const response = await api.post<Store[]>('/stores/search', {
+      latitude: 0,
+      longitude: 0,
+      radius: 10000 // Very wide radius to get all stores
+    })
+    return { data: response.data }
+  },
+
+  // Get stores by category
+  async getStoresByCategory(category: string): Promise<{ data: Store[] }> {
+    const response = await api.post<Store[]>('/stores/search', {
+      latitude: 0,
+      longitude: 0,
+      radius: 10000,
+      category
+    })
+    return { data: response.data }
+  },
+
   // Get store by ID
   async getStore(id: number): Promise<{ data: Store }> {
     const response = await api.get<Store>(`/stores/${id}`)
     return { data: response.data }
   },
 
-  // Create store (business owner only)
+  // Create store (seller only)
   async createStore(storeData: StoreInput): Promise<{ data: Store }> {
     const response = await api.post<Store>('/stores', storeData)
     return { data: response.data }
   },
 
-  // Update store (business owner only)
+  // Update store (seller only)
   async updateStore(id: number, storeData: Partial<StoreInput>): Promise<{ data: Store }> {
     const response = await api.put<Store>(`/stores/${id}`, storeData)
     return { data: response.data }
   },
 
-  // Delete store (business owner only)
+  // Delete store (seller only)
   async deleteStore(id: number): Promise<void> {
     await api.delete(`/stores/${id}`)
   },

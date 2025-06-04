@@ -55,13 +55,12 @@ func (c *StoreController) CreateStore(ctx *gin.Context) {
 		OwnerID:     userID.(uint),
 		IsActive:    true,
 	}
-
 	if err := c.storeRepo.Create(store); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create store"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, store)
+	ctx.JSON(http.StatusCreated, store.ToResponse())
 }
 
 // @Summary Get store by ID
@@ -79,14 +78,13 @@ func (c *StoreController) GetStore(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
 		return
 	}
-
 	store, err := c.storeRepo.GetByID(uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, store)
+	ctx.JSON(http.StatusOK, store.ToResponse())
 }
 
 // @Summary Search nearby stores
@@ -112,6 +110,7 @@ func (c *StoreController) SearchStores(ctx *gin.Context) {
 		return
 	}
 
+	// Repository already returns StoreResponse objects
 	ctx.JSON(http.StatusOK, stores)
 }
 
@@ -136,7 +135,7 @@ func (c *StoreController) GetMyStores(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get stores"})
 		return
 	}
-
+	// Repository already returns StoreResponse objects
 	ctx.JSON(http.StatusOK, stores)
 }
 

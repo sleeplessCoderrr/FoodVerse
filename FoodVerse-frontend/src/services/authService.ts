@@ -10,7 +10,7 @@ export interface RegisterRequest {
   email: string
   password: string
   phone?: string
-  user_type?: 'consumer' | 'business'
+  user_type?: 'consumer' | 'seller'
   address?: string
 }
 
@@ -22,7 +22,7 @@ export interface AuthResponse {
     name: string
     email: string
     phone?: string
-    user_type: 'consumer' | 'business'
+    user_type: 'consumer' | 'seller' | 'admin'
     address?: string
     created_at: string
     updated_at: string
@@ -34,7 +34,7 @@ export interface User {
   name: string
   email: string
   phone?: string
-  user_type: 'consumer' | 'business'
+  user_type: 'consumer' | 'seller' | 'admin'
   address?: string
   created_at: string
   updated_at: string

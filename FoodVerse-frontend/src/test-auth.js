@@ -5,13 +5,13 @@ async function testAuth() {
   console.log('🧪 Testing Authentication API Integration...')
   
   const baseURL = 'http://localhost:7000/api/v1'
-  
-  // Test user data
+    // Test user data
   const testUser = {
     name: 'Test User',
     email: 'test@foodverse.com',
     password: 'password123',
-    phone: '1234567890'
+    phone: '1234567890',
+    user_type: 'consumer'
   }
   
   try {
@@ -27,9 +27,8 @@ async function testAuth() {
     if (registerResponse.ok) {
       const registerData = await registerResponse.json()
       console.log('✅ Registration successful:', registerData)
-      
-      // Store token for further tests
-      const token = registerData.data.token
+        // Store token for further tests
+      const token = registerData.token
       
       console.log('2️⃣ Testing Profile endpoint...')
       const profileResponse = await fetch(`${baseURL}/user`, {

@@ -63,6 +63,7 @@ func main() {
 	storeController := controller.NewStoreController(storeRepo)
 	foodBagController := controller.NewFoodBagController(foodBagRepo, storeRepo)
 	orderController := controller.NewOrderController(orderRepo, foodBagRepo)
+	sellerRequestController := controller.NewSellerRequestController(db)
 
 	// App Router
 	router := gin.Default()
@@ -112,6 +113,12 @@ func main() {
 	{
 		// User routes
 		protected.GET("/user", authController.Profile)
+
+		// Seller request routes
+		protected.POST("/seller-requests", sellerRequestController.CreateSellerRequest)
+		protected.GET("/seller-requests/my", sellerRequestController.GetMySellerRequest)
+		protected.GET("/seller-requests", sellerRequestController.GetSellerRequests)       // Admin only
+		protected.PUT("/seller-requests/:id", sellerRequestController.UpdateSellerRequest) // Admin only
 
 		// Store management routes
 		protected.POST("/stores", storeController.CreateStore)

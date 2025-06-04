@@ -6,13 +6,12 @@ import (
 )
 
 func Migrate(db *gorm.DB) {
-	UserMigrate(db)
-
 	// Auto-migrate all models
 	db.AutoMigrate(
 		&model.User{},
 		&model.Store{},
 		&model.FoodBag{},
 		&model.Order{},
+		&model.SellerRequest{},
 	)
 }
