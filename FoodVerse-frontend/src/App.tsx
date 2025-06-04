@@ -13,11 +13,7 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="h-6 w-6 text-primary-foreground animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 2L3 7v11h4v-6h6v6h4V7l-7-5z"/>
-            </svg>
-          </div>
+          <img src="/logo.png" alt="FoodVerse Logo" className="h-12 w-12 mx-auto mb-4 animate-pulse" />
           <p className="text-muted-foreground">Loading FoodVerse...</p>
         </div>
       </div>
@@ -29,9 +25,7 @@ function App() {
       <Routes>
         <Route 
           path="/" 
-          element={
-            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-          } 
+          element={<HomePage />} 
         />
         <Route 
           path="/login" 

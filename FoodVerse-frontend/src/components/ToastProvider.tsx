@@ -65,18 +65,16 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
     warning: AlertCircle,
     info: Info
   }
-
   const colors = {
-    success: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/10 dark:border-green-800 dark:text-green-400',
-    error: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/10 dark:border-red-800 dark:text-red-400',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/10 dark:border-yellow-800 dark:text-yellow-400',
-    info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/10 dark:border-blue-800 dark:text-blue-400'
+    success: 'glass-card border-primary/30 text-primary shadow-xl',
+    error: 'glass-card border-red-500/30 text-red-600 dark:text-red-400 shadow-xl',
+    warning: 'glass-card border-yellow-500/30 text-yellow-700 dark:text-yellow-400 shadow-xl',
+    info: 'glass-card border-blue-500/30 text-blue-700 dark:text-blue-400 shadow-xl'
   }
 
   const Icon = icons[toast.type]
-
   return (
-    <div className={`max-w-sm w-full border rounded-lg p-4 shadow-lg animate-in slide-in-from-right-full ${colors[toast.type]}`}>
+    <div className={`max-w-sm w-full border rounded-lg p-4 animate-in slide-in-from-right-full ${colors[toast.type]}`}>
       <div className="flex items-start">
         <Icon className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">

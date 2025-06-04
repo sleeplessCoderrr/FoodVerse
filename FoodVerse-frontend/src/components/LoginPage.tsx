@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Eye, EyeOff, Loader2, Utensils } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -54,23 +54,19 @@ export function LoginPage() {
       })
     }
   }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-primary/5 p-4">
       {/* Theme toggle in top-right corner */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
       
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center">
-              <Utensils className="h-6 w-6 text-primary-foreground" />
-            </div>
+      <Card className="w-full max-w-md glass-card border-border/30 shadow-2xl">
+        <CardHeader className="text-center">          <div className="flex justify-center mb-4">
+            <img src="/logo.png" alt="FoodVerse Logo" className="h-12 w-12 shadow-lg" />
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-foreground">Welcome back</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Sign in to your FoodVerse account to continue reducing food waste
           </CardDescription>
         </CardHeader>
@@ -136,9 +132,8 @@ export function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              
-              {error && (
-                <div className="text-sm text-destructive text-center bg-destructive/10 p-3 rounded-md">
+                {error && (
+                <div className="text-sm text-destructive text-center glass-card bg-destructive/10 border border-destructive/20 p-3 rounded-md">
                   {error}
                 </div>
               )}

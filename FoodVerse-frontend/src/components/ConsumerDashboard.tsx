@@ -154,17 +154,16 @@ export function ConsumerDashboard() {
     setOrderNotes('')
     setIsOrderDialogOpen(true)
   }
-
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 space-y-6 p-6">
       {/* Search and Filter Section */}
-      <Card>
+      <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <Search className="h-5 w-5" />
             Find Food Near You
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-muted-foreground">
             Discover discounted food from local businesses and help reduce waste
           </CardDescription>
         </CardHeader>
@@ -195,12 +194,10 @@ export function ConsumerDashboard() {
             ))}
           </div>
         </CardContent>
-      </Card>
-
-      {/* Available Food Bags */}
-      <Card>
+      </Card>      {/* Available Food Bags */}
+      <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <ShoppingBag className="h-5 w-5" />
             Available Food Bags ({foodBags.length})
           </CardTitle>
@@ -212,10 +209,9 @@ export function ConsumerDashboard() {
             <div className="text-center py-8 text-muted-foreground">
               No food bags available in your area. Try expanding your search radius or check back later.
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {foodBags.map((foodBag) => (
-                <Card key={foodBag.id} className="hover:shadow-lg transition-shadow">
+                <Card key={foodBag.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/30">
                   <CardContent className="p-4">
                     {foodBag.image_url && (
                       <img
@@ -232,15 +228,14 @@ export function ConsumerDashboard() {
                       
                       <p className="text-sm">{foodBag.description}</p>
                       
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-green-600">
+                      <div className="flex items-center justify-between">                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold text-primary">
                             ${foodBag.discounted_price.toFixed(2)}
                           </span>
                           <span className="text-sm text-muted-foreground line-through">
                             ${foodBag.original_price.toFixed(2)}
                           </span>
-                          <Badge variant="secondary">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                             {foodBag.discount_percent}% off
                           </Badge>
                         </div>
@@ -274,12 +269,10 @@ export function ConsumerDashboard() {
             </div>
           )}
         </CardContent>
-      </Card>
-
-      {/* Nearby Stores */}
-      <Card>
+      </Card>      {/* Nearby Stores */}
+      <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <MapPin className="h-5 w-5" />
             Nearby Stores ({stores.length})
           </CardTitle>
@@ -291,18 +284,16 @@ export function ConsumerDashboard() {
             <div className="text-center py-8 text-muted-foreground">
               No stores found in your area. Try expanding your search or changing filters.
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {stores.map((store) => (
-                <Card key={store.id} className="hover:shadow-lg transition-shadow">
+                <Card key={store.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/30">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-semibold text-lg">{store.name}</h3>
                         <p className="text-sm text-muted-foreground">{store.category}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      </div>                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-primary text-primary" />
                         <span className="text-sm">{store.rating.toFixed(1)}</span>
                       </div>
                     </div>
@@ -323,11 +314,9 @@ export function ConsumerDashboard() {
               ))}
             </div>          )}
         </CardContent>
-      </Card>
-
-      {/* Order Dialog */}
+      </Card>      {/* Order Dialog */}
       <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] glass-card border-border/30 shadow-2xl">
           <DialogHeader>
             <DialogTitle>Reserve Food Bag</DialogTitle>
             <DialogDescription>
@@ -338,9 +327,8 @@ export function ConsumerDashboard() {
           </DialogHeader>
           
           {selectedFoodBag && (
-            <div className="space-y-4">
-              {/* Order Summary */}
-              <div className="border rounded-lg p-4 space-y-3">
+            <div className="space-y-4">              {/* Order Summary */}
+              <div className="glass-card border border-border/30 rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <ShoppingBag className="h-6 w-6 text-gray-600" />
@@ -350,9 +338,8 @@ export function ConsumerDashboard() {
                     <p className="text-sm text-muted-foreground">{selectedFoodBag.store.name}</p>
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-green-600">
+                  <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-primary">
                     ${selectedFoodBag.discounted_price.toFixed(2)}
                   </span>
                   <span className="text-sm text-muted-foreground line-through">

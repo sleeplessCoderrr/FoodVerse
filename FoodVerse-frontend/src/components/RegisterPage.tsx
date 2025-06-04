@@ -1,9 +1,9 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Eye, EyeOff, Loader2, Utensils } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,11 +32,17 @@ type RegisterForm = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { register: registerUser, isLoading } = useAuth()
   const { addToast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Get user type from URL parameter if provided
+  const urlUserType = searchParams.get('type')
+  const initialUserType = (urlUserType === 'consumer' || urlUserType === 'business') ? urlUserType : 'consumer'
+  
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -46,9 +52,16 @@ export function RegisterPage() {
       confirmPassword: "",
       phone: "",
       address: "",
-      userType: "consumer",
+      userType: initialUserType,
     },
   })
+
+  // Update form when URL parameter changes
+  useEffect(() => {
+    if (urlUserType === 'consumer' || urlUserType === 'business') {
+      form.setValue('userType', urlUserType)
+    }
+  }, [urlUserType, form])
 
   const onSubmit = async (data: RegisterForm) => {
     setError(null)
@@ -97,23 +110,19 @@ export function RegisterPage() {
       })
     }
   }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/95 to-primary/5 p-4">
       {/* Theme toggle in top-right corner */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
       
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center">
-              <Utensils className="h-6 w-6 text-primary-foreground" />
-            </div>
+      <Card className="w-full max-w-md glass-card border-border/30 shadow-2xl">
+        <CardHeader className="text-center">          <div className="flex justify-center mb-4">
+            <img src="/logo.png" alt="FoodVerse Logo" className="h-12 w-12 shadow-lg" />
           </div>
-          <CardTitle className="text-2xl font-bold">Create account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-foreground">Create account</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Join FoodVerse to help reduce food waste and save money
           </CardDescription>
         </CardHeader>
@@ -286,9 +295,8 @@ export function RegisterPage() {
                     <FormMessage />
                   </FormItem>
                 )}              />
-              
-              {error && (
-                <div className="text-sm text-destructive text-center bg-destructive/10 p-3 rounded-md">
+                {error && (
+                <div className="text-sm text-destructive text-center glass-card bg-destructive/10 border border-destructive/20 p-3 rounded-md">
                   {error}
                 </div>
               )}
