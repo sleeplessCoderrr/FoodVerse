@@ -27,11 +27,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (authService.isAuthenticated()) {
           const storedUser = authService.getStoredUser()
           if (storedUser) {
-            setUser(storedUser)
-          } else {
+            setUser(storedUser)          } else {
             // Fetch fresh user data from API
-            const { data } = await authService.getProfile()
-            setUser(data)
+            const userData = await authService.getProfile()
+            setUser(userData)
           }
         }
       } catch (error) {
@@ -44,27 +43,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     checkAuth()
   }, [])
-
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
       const response = await authService.login({ email, password })
-      authService.storeAuthData(response.data)
-      setUser(response.data.user)
+      authService.storeAuthData(response)
+      setUser(response.user)
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed')
+      throw new Error(error.response?.data?.error || error.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }
   }
+
   const register = async (name: string, email: string, password: string, userType: 'consumer' | 'business', phone?: string, address?: string) => {
     setIsLoading(true)
     try {
       const response = await authService.register({ name, email, password, user_type: userType, phone, address })
-      authService.storeAuthData(response.data)
-      setUser(response.data.user)
+      authService.storeAuthData(response)
+      setUser(response.user)
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed')
+      throw new Error(error.response?.data?.error || error.message || 'Registration failed')
     } finally {
       setIsLoading(false)
     }

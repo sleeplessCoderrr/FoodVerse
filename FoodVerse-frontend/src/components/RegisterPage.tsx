@@ -37,7 +37,6 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -46,13 +45,24 @@ export function RegisterPage() {
       password: "",
       confirmPassword: "",
       phone: "",
-      address: "",      userType: "consumer",
+      address: "",
+      userType: "consumer",
     },
   })
+
   const onSubmit = async (data: RegisterForm) => {
     setError(null)
     try {
+      console.log('Attempting registration with data:', { 
+        name: data.name, 
+        email: data.email, 
+        userType: data.userType,
+        phone: data.phone || undefined,
+        address: data.address || undefined
+      })
+      
       await registerUser(data.name, data.email, data.password, data.userType, data.phone, data.address)
+      
       addToast({
         type: 'success',
         title: 'Account Created!',
@@ -60,7 +70,25 @@ export function RegisterPage() {
       })
       navigate("/dashboard")
     } catch (error: any) {
-      const errorMessage = error.message || "Registration failed. Please try again."
+      console.error('Registration error:', error)
+      
+      let errorMessage = "Registration failed. Please try again."
+      
+      // Handle specific error cases
+      if (error.message) {
+        if (error.message.includes('user already exists') || error.message.includes('duplicate')) {
+          errorMessage = "An account with this email already exists. Please use a different email or try logging in."
+        } else if (error.message.includes('email')) {
+          errorMessage = "Please enter a valid email address."
+        } else if (error.message.includes('password')) {
+          errorMessage = "Password must be at least 6 characters long."
+        } else if (error.message.includes('network') || error.message.includes('ECONNREFUSED')) {
+          errorMessage = "Unable to connect to the server. Please check your internet connection and try again."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       setError(errorMessage)
       addToast({
         type: 'error',

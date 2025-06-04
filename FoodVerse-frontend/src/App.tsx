@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { LoginPage } from './components/LoginPage'
 import { RegisterPage } from './components/RegisterPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { HomePage } from './components/HomePage'
 import { useAuth } from './contexts/AuthContext'
 import Dashboard from './components/Dashboard'
 

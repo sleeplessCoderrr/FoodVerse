@@ -15,19 +15,17 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  message: string
-  data: {
-    user: {
-      id: number
-      name: string
-      email: string
-      phone?: string
-      user_type: 'consumer' | 'business'
-      address?: string
-      created_at: string
-      updated_at: string
-    }
-    token: string
+  token: string
+  expires_at: string
+  user: {
+    id: number
+    name: string
+    email: string
+    phone?: string
+    user_type: 'consumer' | 'business'
+    address?: string
+    created_at: string
+    updated_at: string
   }
 }
 
@@ -54,10 +52,9 @@ export const authService = {
     const response = await api.post<AuthResponse>('/register', userData)
     return response.data
   },
-
   // Get current user profile
-  async getProfile(): Promise<{ data: User }> {
-    const response = await api.get<{ data: User }>('/user')
+  async getProfile(): Promise<User> {
+    const response = await api.get<User>('/user')
     return response.data
   },
 
@@ -78,9 +75,8 @@ export const authService = {
     const userData = localStorage.getItem('foodverse-user')
     return userData ? JSON.parse(userData) : null
   },
-
   // Store auth data
-  storeAuthData(data: AuthResponse['data']): void {
+  storeAuthData(data: AuthResponse): void {
     localStorage.setItem('foodverse-auth-token', data.token)
     localStorage.setItem('foodverse-user', JSON.stringify(data.user))
   }

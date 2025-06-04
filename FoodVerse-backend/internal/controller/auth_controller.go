@@ -82,7 +82,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 // @Security Bearer
 // @Router /user [get]
 func (c *AuthController) Profile(ctx *gin.Context) {
-	userId, exists := ctx.Get("userId")
+	userId, exists := ctx.Get("user_id")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized",
