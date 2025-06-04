@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/FoodVerse/FoodVerse-backend/docs"
 	"github.com/FoodVerse/FoodVerse-backend/internal/config"
 	"github.com/FoodVerse/FoodVerse-backend/internal/controller"
 	"github.com/FoodVerse/FoodVerse-backend/internal/middleware"
@@ -11,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "github.com/FoodVerse/FoodVerse-backend/docs"
 )
 
 // @title FoodVerse API
@@ -83,7 +83,7 @@ func main() {
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	
+
 	// Debug route to check if routing works
 	router.GET("/swagger", func(c *gin.Context) {
 		c.Redirect(302, "/swagger/index.html")

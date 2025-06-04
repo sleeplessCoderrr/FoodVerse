@@ -140,6 +140,30 @@ func (c *StoreController) GetMyStores(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, stores)
 }
 
+// @Summary Get owned stores
+// @Description Get all stores owned by the authenticated business user
+// @Tags stores
+// @Produce json
+// @Success 200 {object} map[string][]model.Store
+// @Failure 401 {object} map[string]string
+// @Security Bearer
+// @Router /stores/owned [get]
+func (c *StoreController) GetOwnedStores(ctx *gin.Context) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	stores, err := c.storeRepo.GetByOwnerID(userID.(uint))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch stores"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": stores})
+}
+
 // @Summary Update store
 // @Description Update store details
 // @Tags stores
