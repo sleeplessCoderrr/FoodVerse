@@ -1,0 +1,1107 @@
+definitions:
+  model.AuthResponse:
+    properties:
+      expires_at:
+        example: "2023-01-02T00:00:00Z"
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/model.SwaggerUser'
+    type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        example: Something went wrong
+        type: string
+    type: object
+  model.FoodBagInput:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      discounted_price:
+        type: number
+      image_url:
+        type: string
+      original_price:
+        type: number
+      pickup_time_end:
+        type: string
+      pickup_time_start:
+        type: string
+      quantity_total:
+        type: integer
+      store_id:
+        type: integer
+      title:
+        type: string
+    required:
+    - discounted_price
+    - original_price
+    - pickup_time_end
+    - pickup_time_start
+    - quantity_total
+    - store_id
+    - title
+    type: object
+  model.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.OrderInput:
+    properties:
+      food_bag_id:
+        type: integer
+      notes:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - food_bag_id
+    - quantity
+    type: object
+  model.StoreInput:
+    properties:
+      address:
+        type: string
+      category:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      image_url:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      phone:
+        type: string
+    required:
+    - address
+    - category
+    - latitude
+    - longitude
+    - name
+    type: object
+  model.SwaggerFoodBag:
+    properties:
+      category:
+        example: Mixed
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Assorted fresh items
+        type: string
+      discounted_price:
+        example: 10
+        type: number
+      id:
+        example: 1
+        type: integer
+      image_url:
+        example: https://example.com/image.jpg
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      original_price:
+        example: 25
+        type: number
+      pickup_time_end:
+        example: "2023-01-01T21:00:00Z"
+        type: string
+      pickup_time_start:
+        example: "2023-01-01T18:00:00Z"
+        type: string
+      quantity_left:
+        example: 3
+        type: integer
+      quantity_total:
+        example: 5
+        type: integer
+      store:
+        $ref: '#/definitions/model.SwaggerStore'
+      store_id:
+        example: 1
+        type: integer
+      title:
+        example: Mixed Food Bag
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  model.SwaggerFoodBagResponse:
+    properties:
+      category:
+        example: Mixed
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Assorted fresh items
+        type: string
+      discount_percent:
+        example: 60
+        type: integer
+      discounted_price:
+        example: 10
+        type: number
+      id:
+        example: 1
+        type: integer
+      image_url:
+        example: https://example.com/image.jpg
+        type: string
+      original_price:
+        example: 25
+        type: number
+      pickup_time_end:
+        example: "2023-01-01T21:00:00Z"
+        type: string
+      pickup_time_start:
+        example: "2023-01-01T18:00:00Z"
+        type: string
+      quantity_left:
+        example: 3
+        type: integer
+      store:
+        $ref: '#/definitions/model.SwaggerStoreResponse'
+      title:
+        example: Mixed Food Bag
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  model.SwaggerFoodBagSearchRequest:
+    properties:
+      category:
+        example: Mixed
+        type: string
+      latitude:
+        example: 40.7128
+        type: number
+      longitude:
+        example: -74.006
+        type: number
+      max_price:
+        example: 20
+        type: number
+      min_price:
+        example: 5
+        type: number
+      radius:
+        example: 5
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
+  model.SwaggerOrder:
+    properties:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      food_bag:
+        $ref: '#/definitions/model.SwaggerFoodBag'
+      food_bag_id:
+        example: 1
+        type: integer
+      id:
+        example: 1
+        type: integer
+      order_date:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      picked_up_at:
+        example: "2023-01-01T19:00:00Z"
+        type: string
+      pickup_code:
+        example: ABC123
+        type: string
+      quantity:
+        example: 2
+        type: integer
+      status:
+        example: pending
+        type: string
+      store:
+        $ref: '#/definitions/model.SwaggerStore'
+      store_id:
+        example: 1
+        type: integer
+      total_price:
+        example: 20
+        type: number
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/model.SwaggerUser'
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  model.SwaggerOrderStatusUpdate:
+    properties:
+      status:
+        enum:
+        - pending
+        - preparing
+        - ready
+        - completed
+        - cancelled
+        example: completed
+        type: string
+    required:
+    - status
+    type: object
+  model.SwaggerPickupCodeRequest:
+    properties:
+      pickup_code:
+        example: ABC123
+        type: string
+    required:
+    - pickup_code
+    type: object
+  model.SwaggerStore:
+    properties:
+      address:
+        example: 123 Main St
+        type: string
+      category:
+        example: Grocery
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Fresh organic produce
+        type: string
+      email:
+        example: store@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      image_url:
+        example: https://example.com/store.jpg
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      latitude:
+        example: 40.7128
+        type: number
+      longitude:
+        example: -74.006
+        type: number
+      name:
+        example: Green Grocery
+        type: string
+      owner_id:
+        example: 1
+        type: integer
+      phone:
+        example: "+1234567890"
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  model.SwaggerStoreResponse:
+    properties:
+      address:
+        example: 123 Main St
+        type: string
+      category:
+        example: Grocery
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        example: Fresh organic produce
+        type: string
+      email:
+        example: store@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      image_url:
+        example: https://example.com/store.jpg
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      latitude:
+        example: 40.7128
+        type: number
+      longitude:
+        example: -74.006
+        type: number
+      name:
+        example: Green Grocery
+        type: string
+      phone:
+        example: "+1234567890"
+        type: string
+      rating:
+        example: 4.5
+        type: number
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  model.SwaggerStoreSearchRequest:
+    properties:
+      category:
+        example: Grocery
+        type: string
+      latitude:
+        example: 40.7128
+        type: number
+      longitude:
+        example: -74.006
+        type: number
+      query:
+        example: Green
+        type: string
+      radius:
+        example: 5
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
+  model.SwaggerUser:
+    properties:
+      address:
+        example: 456 Oak St
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: John Doe
+        type: string
+      phone:
+        example: "+1234567890"
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user_type:
+        example: consumer
+        type: string
+    type: object
+  model.UserInput:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      user_type:
+        $ref: '#/definitions/model.UserType'
+    required:
+    - email
+    - name
+    - password
+    - user_type
+    type: object
+  model.UserType:
+    enum:
+    - consumer
+    - business
+    type: string
+    x-enum-varnames:
+    - UserTypeConsumer
+    - UserTypeBusiness
+info:
+  contact: {}
+paths:
+  /food-bags:
+    post:
+      consumes:
+      - application/json
+      description: Create a new food bag for a store
+      parameters:
+      - description: Food bag data
+        in: body
+        name: foodbag
+        required: true
+        schema:
+          $ref: '#/definitions/model.FoodBagInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.SwaggerFoodBag'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new food bag
+      tags:
+      - food-bags
+  /food-bags/{id}:
+    delete:
+      description: Delete a food bag
+      parameters:
+      - description: Food bag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete food bag
+      tags:
+      - food-bags
+    get:
+      description: Get food bag details by ID
+      parameters:
+      - description: Food bag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerFoodBag'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get food bag by ID
+      tags:
+      - food-bags
+    put:
+      consumes:
+      - application/json
+      description: Update food bag details
+      parameters:
+      - description: Food bag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Food bag data
+        in: body
+        name: foodbag
+        required: true
+        schema:
+          $ref: '#/definitions/model.FoodBagInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerFoodBag'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update food bag
+      tags:
+      - food-bags
+  /food-bags/search:
+    post:
+      consumes:
+      - application/json
+      description: Search for food bags near a location
+      parameters:
+      - description: Search criteria
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/model.SwaggerFoodBagSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerFoodBagResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Search nearby food bags
+      tags:
+      - food-bags
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: User login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /orders:
+    post:
+      consumes:
+      - application/json
+      description: Create a new order for a food bag
+      parameters:
+      - description: Order data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrderInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.SwaggerOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new order
+      tags:
+      - orders
+  /orders/{id}:
+    get:
+      description: Get order details by ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get order by ID
+      tags:
+      - orders
+  /orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update order status (for store owners)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/model.SwaggerOrderStatusUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update order status
+      tags:
+      - orders
+  /orders/my:
+    get:
+      description: Get all orders for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerOrder'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user's orders
+      tags:
+      - orders
+  /orders/verify-pickup:
+    post:
+      consumes:
+      - application/json
+      description: Verify pickup code and complete order
+      parameters:
+      - description: Pickup code
+        in: body
+        name: code
+        required: true
+        schema:
+          $ref: '#/definitions/model.SwaggerPickupCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Verify pickup code
+      tags:
+      - orders
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /stores:
+    post:
+      consumes:
+      - application/json
+      description: Create a new store for a business user
+      parameters:
+      - description: Store data
+        in: body
+        name: store
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoreInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.SwaggerStore'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new store
+      tags:
+      - stores
+  /stores/{id}:
+    delete:
+      description: Delete a store
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete store
+      tags:
+      - stores
+    get:
+      description: Get store details by ID
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerStore'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get store by ID
+      tags:
+      - stores
+    put:
+      consumes:
+      - application/json
+      description: Update store details
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Store data
+        in: body
+        name: store
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoreInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerStore'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update store
+      tags:
+      - stores
+  /stores/{store_id}/food-bags:
+    get:
+      description: Get all food bags for a specific store
+      parameters:
+      - description: Store ID
+        in: path
+        name: store_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerFoodBag'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Get food bags by store
+      tags:
+      - food-bags
+  /stores/{store_id}/orders:
+    get:
+      description: Get all orders for a store
+      parameters:
+      - description: Store ID
+        in: path
+        name: store_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerOrder'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get store orders
+      tags:
+      - orders
+  /stores/my:
+    get:
+      description: Get all stores owned by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerStore'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user's stores
+      tags:
+      - stores
+  /stores/search:
+    post:
+      consumes:
+      - application/json
+      description: Search for stores near a location
+      parameters:
+      - description: Search criteria
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/model.SwaggerStoreSearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.SwaggerStoreResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Search nearby stores
+      tags:
+      - stores
+  /user:
+    get:
+      description: Get current user profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SwaggerUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user profile
+      tags:
+      - auth
+swagger: "2.0"

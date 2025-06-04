@@ -9,7 +9,30 @@ import (
 	"github.com/FoodVerse/FoodVerse-backend/migrations"
 	"github.com/FoodVerse/FoodVerse-backend/pkg/database"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "github.com/FoodVerse/FoodVerse-backend/docs"
 )
+
+// @title FoodVerse API
+// @version 1.0
+// @description API for FoodVerse food waste reduction platform
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name FoodVerse Support
+// @contact.url http://www.foodverse.com/support
+// @contact.email support@foodverse.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:7000
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	cfg, err := config.LoadConfig()
@@ -56,6 +79,14 @@ func main() {
 		}
 
 		c.Next()
+	})
+
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	
+	// Debug route to check if routing works
+	router.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(302, "/swagger/index.html")
 	})
 
 	// Public routes

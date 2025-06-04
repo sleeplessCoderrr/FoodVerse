@@ -14,10 +14,18 @@ type AuthController struct {
 
 func NewAuthController(authService *service.AuthService) *AuthController {
 	return &AuthController{
-		authService: authService,
-	}
+		authService: authService}
 }
 
+// @Summary Register a new user
+// @Description Register a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body model.UserInput true "User registration data"
+// @Success 201 {object} model.AuthResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Router /register [post]
 func (c *AuthController) Register(ctx *gin.Context) {
 	var input model.UserInput
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -34,10 +42,18 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		})
 		return
 	}
-
 	ctx.JSON(http.StatusCreated, response)
 }
 
+// @Summary Login user
+// @Description Authenticate user and return JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param credentials body model.LoginInput true "User login credentials"
+// @Success 200 {object} model.AuthResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Router /login [post]
 func (c *AuthController) Login(ctx *gin.Context) {
 	var input model.LoginInput
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -54,10 +70,17 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		})
 		return
 	}
-
 	ctx.JSON(http.StatusOK, response)
 }
 
+// @Summary Get user profile
+// @Description Get current user profile information
+// @Tags auth
+// @Produce json
+// @Success 200 {object} model.SwaggerUser
+// @Failure 401 {object} model.ErrorResponse
+// @Security Bearer
+// @Router /user [get]
 func (c *AuthController) Profile(ctx *gin.Context) {
 	userId, exists := ctx.Get("userId")
 	if !exists {

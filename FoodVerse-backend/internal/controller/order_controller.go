@@ -28,9 +28,10 @@ func NewOrderController(orderRepo *repository.OrderRepository, foodBagRepo *repo
 // @Accept json
 // @Produce json
 // @Param order body model.OrderInput true "Order data"
-// @Success 201 {object} model.Order
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Success 201 {object} model.SwaggerOrder
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /orders [post]
 func (c *OrderController) CreateOrder(ctx *gin.Context) {
 	var input model.OrderInput
@@ -103,8 +104,12 @@ func (c *OrderController) CreateOrder(ctx *gin.Context) {
 // @Tags orders
 // @Produce json
 // @Param id path int true "Order ID"
-// @Success 200 {object} model.Order
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} model.SwaggerOrder
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 403 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /orders/{id} [get]
 func (c *OrderController) GetOrder(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
@@ -138,8 +143,10 @@ func (c *OrderController) GetOrder(ctx *gin.Context) {
 // @Description Get all orders for the authenticated user
 // @Tags orders
 // @Produce json
-// @Success 200 {array} model.Order
-// @Failure 401 {object} map[string]string
+// @Success 200 {array} model.SwaggerOrder
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /orders/my [get]
 func (c *OrderController) GetMyOrders(ctx *gin.Context) {
 	userID, exists := ctx.Get("user_id")
@@ -162,8 +169,11 @@ func (c *OrderController) GetMyOrders(ctx *gin.Context) {
 // @Tags orders
 // @Produce json
 // @Param store_id path int true "Store ID"
-// @Success 200 {array} model.Order
-// @Failure 401 {object} map[string]string
+// @Success 200 {array} model.SwaggerOrder
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /stores/{store_id}/orders [get]
 func (c *OrderController) GetStoreOrders(ctx *gin.Context) {
 	storeID, err := strconv.ParseUint(ctx.Param("store_id"), 10, 32)
@@ -195,10 +205,14 @@ func (c *OrderController) GetStoreOrders(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Order ID"
-// @Param status body map[string]string true "New status"
-// @Success 200 {object} model.Order
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Param status body model.SwaggerOrderStatusUpdate true "New status"
+// @Success 200 {object} model.SwaggerOrder
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 403 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /orders/{id}/status [put]
 func (c *OrderController) UpdateOrderStatus(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
@@ -264,10 +278,11 @@ func (c *OrderController) UpdateOrderStatus(ctx *gin.Context) {
 // @Tags orders
 // @Accept json
 // @Produce json
-// @Param code body map[string]string true "Pickup code"
-// @Success 200 {object} model.Order
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Param code body model.SwaggerPickupCodeRequest true "Pickup code"
+// @Success 200 {object} model.SwaggerOrder
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
 // @Router /orders/verify-pickup [post]
 func (c *OrderController) VerifyPickupCode(ctx *gin.Context) {
 	var input struct {

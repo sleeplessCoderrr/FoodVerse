@@ -39,7 +39,7 @@ func LoadConfig() (*Config, error) {
 		DBUser:             getEnv("DB_USER", "foodverse"),
 		DBPassword:         getEnv("DB_PASSWORD", "foodverse"),
 		DBName:             getEnv("DB_NAME", "foodverse"),
-		ServerPort:         getEnv("SERVER_PORT", "8080"),
+		ServerPort:         getEnv("SERVER_PORT", "7000"),
 		JWTSecret:          getEnv("JWT_SECRET", "your_jwt_secret"),
 		JWTExpirationHours: jwtHours,
 	}

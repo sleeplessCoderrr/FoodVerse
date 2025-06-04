@@ -27,9 +27,10 @@ func NewFoodBagController(foodBagRepo *repository.FoodBagRepository, storeRepo *
 // @Accept json
 // @Produce json
 // @Param foodbag body model.FoodBagInput true "Food bag data"
-// @Success 201 {object} model.FoodBag
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Success 201 {object} model.SwaggerFoodBag
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /food-bags [post]
 func (c *FoodBagController) CreateFoodBag(ctx *gin.Context) {
 	var input model.FoodBagInput
@@ -83,8 +84,8 @@ func (c *FoodBagController) CreateFoodBag(ctx *gin.Context) {
 // @Tags food-bags
 // @Produce json
 // @Param id path int true "Food bag ID"
-// @Success 200 {object} model.FoodBag
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} model.SwaggerFoodBag
+// @Failure 404 {object} model.ErrorResponse
 // @Router /food-bags/{id} [get]
 func (c *FoodBagController) GetFoodBag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
@@ -107,9 +108,9 @@ func (c *FoodBagController) GetFoodBag(ctx *gin.Context) {
 // @Tags food-bags
 // @Accept json
 // @Produce json
-// @Param search body model.FoodBagSearchRequest true "Search criteria"
-// @Success 200 {array} model.FoodBagResponse
-// @Failure 400 {object} map[string]string
+// @Param search body model.SwaggerFoodBagSearchRequest true "Search criteria"
+// @Success 200 {array} model.SwaggerFoodBagResponse
+// @Failure 400 {object} model.ErrorResponse
 // @Router /food-bags/search [post]
 func (c *FoodBagController) SearchFoodBags(ctx *gin.Context) {
 	var req model.FoodBagSearchRequest
@@ -132,8 +133,8 @@ func (c *FoodBagController) SearchFoodBags(ctx *gin.Context) {
 // @Tags food-bags
 // @Produce json
 // @Param store_id path int true "Store ID"
-// @Success 200 {array} model.FoodBag
-// @Failure 400 {object} map[string]string
+// @Success 200 {array} model.SwaggerFoodBag
+// @Failure 400 {object} model.ErrorResponse
 // @Router /stores/{store_id}/food-bags [get]
 func (c *FoodBagController) GetFoodBagsByStore(ctx *gin.Context) {
 	storeID, err := strconv.ParseUint(ctx.Param("store_id"), 10, 32)
@@ -158,10 +159,11 @@ func (c *FoodBagController) GetFoodBagsByStore(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Food bag ID"
 // @Param foodbag body model.FoodBagInput true "Food bag data"
-// @Success 200 {object} model.FoodBag
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} model.SwaggerFoodBag
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /food-bags/{id} [put]
 func (c *FoodBagController) UpdateFoodBag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
@@ -217,8 +219,11 @@ func (c *FoodBagController) UpdateFoodBag(ctx *gin.Context) {
 // @Tags food-bags
 // @Param id path int true "Food bag ID"
 // @Success 204
-// @Failure 401 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 403 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /food-bags/{id} [delete]
 func (c *FoodBagController) DeleteFoodBag(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)

@@ -23,9 +23,10 @@ func NewStoreController(storeRepo *repository.StoreRepository) *StoreController 
 // @Accept json
 // @Produce json
 // @Param store body model.StoreInput true "Store data"
-// @Success 201 {object} model.Store
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
+// @Success 201 {object} model.SwaggerStore
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /stores [post]
 func (c *StoreController) CreateStore(ctx *gin.Context) {
 	var input model.StoreInput
@@ -68,8 +69,9 @@ func (c *StoreController) CreateStore(ctx *gin.Context) {
 // @Tags stores
 // @Produce json
 // @Param id path int true "Store ID"
-// @Success 200 {object} model.Store
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} model.SwaggerStore
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
 // @Router /stores/{id} [get]
 func (c *StoreController) GetStore(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
@@ -92,9 +94,10 @@ func (c *StoreController) GetStore(ctx *gin.Context) {
 // @Tags stores
 // @Accept json
 // @Produce json
-// @Param search body model.StoreSearchRequest true "Search criteria"
-// @Success 200 {array} model.StoreResponse
-// @Failure 400 {object} map[string]string
+// @Param search body model.SwaggerStoreSearchRequest true "Search criteria"
+// @Success 200 {array} model.SwaggerStoreResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
 // @Router /stores/search [post]
 func (c *StoreController) SearchStores(ctx *gin.Context) {
 	var req model.StoreSearchRequest
@@ -116,8 +119,10 @@ func (c *StoreController) SearchStores(ctx *gin.Context) {
 // @Description Get all stores owned by the authenticated user
 // @Tags stores
 // @Produce json
-// @Success 200 {array} model.Store
-// @Failure 401 {object} map[string]string
+// @Success 200 {array} model.SwaggerStore
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /stores/my [get]
 func (c *StoreController) GetMyStores(ctx *gin.Context) {
 	userID, exists := ctx.Get("user_id")
@@ -142,10 +147,13 @@ func (c *StoreController) GetMyStores(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Store ID"
 // @Param store body model.StoreInput true "Store data"
-// @Success 200 {object} model.Store
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} model.SwaggerStore
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 403 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Security Bearer
 // @Router /stores/{id} [put]
 func (c *StoreController) UpdateStore(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
