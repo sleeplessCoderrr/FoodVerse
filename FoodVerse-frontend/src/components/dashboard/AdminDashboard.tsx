@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/shared/ToastProvider'
+import { AuthenticatedLayout } from '@/components/shared/AuthenticatedLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -30,13 +31,31 @@ export function AdminDashboard() {
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
   const [adminComments, setAdminComments] = useState('')
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { addToast } = useToast()
 
+  // Filter seller requests based on search query
+  const filteredSellerRequests = sellerRequests.filter(request => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      request.user.name.toLowerCase().includes(query) ||
+      request.user.email.toLowerCase().includes(query) ||
+      request.id_number.toLowerCase().includes(query) ||
+      request.location.toLowerCase().includes(query) ||
+      request.reason.toLowerCase().includes(query)
+    )
+  })
+
   const stats = {
-    pending: sellerRequests.filter(req => req.status === 'pending').length,
-    approved: sellerRequests.filter(req => req.status === 'approved').length,
-    rejected: sellerRequests.filter(req => req.status === 'rejected').length,
-    total: sellerRequests.length
+    pending: filteredSellerRequests.filter(req => req.status === 'pending').length,
+    approved: filteredSellerRequests.filter(req => req.status === 'approved').length,
+    rejected: filteredSellerRequests.filter(req => req.status === 'rejected').length,
+    total: filteredSellerRequests.length
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
   }
 
   useEffect(() => {
@@ -60,10 +79,9 @@ export function AdminDashboard() {
       setIsLoading(false)
     }
   }
-
   const getFilteredRequests = (status?: string) => {
-    if (!status || status === 'all') return sellerRequests
-    return sellerRequests.filter(req => req.status === status)
+    if (!status || status === 'all') return filteredSellerRequests
+    return filteredSellerRequests.filter(req => req.status === status)
   }
 
   const openReviewDialog = (request: SellerRequest) => {
@@ -123,9 +141,11 @@ export function AdminDashboard() {
       minute: '2-digit'
     })
   }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 space-y-6 p-6">
+    <AuthenticatedLayout 
+      onSearch={handleSearch}
+      searchPlaceholder="Search seller requests by name, email, ID, or location..."
+    >
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -471,10 +491,9 @@ export function AdminDashboard() {
                   Approve
                 </Button>
               </>
-            )}
-          </DialogFooter>
+            )}          </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AuthenticatedLayout>
   )
 }

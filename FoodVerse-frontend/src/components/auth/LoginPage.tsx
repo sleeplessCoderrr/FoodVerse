@@ -60,7 +60,7 @@ export function LoginPage() {
       {/* Background Elements */}
       <div className="absolute inset-0">
         <motion.div 
-          className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-86 h-72 bg-primary/5 rounded-full blur-3xl"
           animate={{ 
             scale: [1, 1.2, 1],
             rotate: [0, 180, 360]

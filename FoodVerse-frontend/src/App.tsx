@@ -6,6 +6,9 @@ import { ProtectedRoute } from './components/shared/ProtectedRoute'
 import { HomePage } from './components/pages/HomePage'
 import { StoreDiscoveryPage } from './components/pages/StoreDiscoveryPage'
 import { StoreDetailPage } from './components/pages/StoreDetailPage'
+import { UserProfile } from './components/profile/UserProfile'
+import { OrderHistory } from './components/orders/OrderHistory'
+import { OrderView } from './components/orders/OrderView'
 import { useAuth } from './contexts/AuthContext'
 import Dashboard from './components/dashboard/Dashboard'
 
@@ -59,6 +62,30 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrderHistory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/:id"
+          element={
+            <ProtectedRoute>
+              <OrderView />
             </ProtectedRoute>
           }
         />

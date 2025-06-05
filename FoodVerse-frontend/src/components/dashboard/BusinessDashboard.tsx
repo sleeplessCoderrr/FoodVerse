@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useToast } from '@/components/shared/ToastProvider'
+import { AuthenticatedLayout } from '@/components/shared/AuthenticatedLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +22,7 @@ export function BusinessDashboard() {
   const [showFoodBagDialog, setShowFoodBagDialog] = useState(false)
   const [editingStore, setEditingStore] = useState<StoreType | null>(null)
   const [editingFoodBag, setEditingFoodBag] = useState<FoodBag | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const { addToast } = useToast()
 
   const categories = ['bakery', 'restaurant', 'grocery', 'cafe']
@@ -195,33 +197,55 @@ export function BusinessDashboard() {
       }
     }
   }
-
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     })
   }
+
+  // Search functionality
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+  }
+
+  // Filter stores and food bags based on search query
+  const filteredStores = stores.filter(store => 
+    store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    store.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    store.address.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredFoodBags = foodBags.filter(foodBag =>
+    foodBag.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    foodBag.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    foodBag.category.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 space-y-6 p-6">
-      {/* Business Overview */}
-      <Card className="glass-card border-border/30 shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-foreground">
-            <Store className="h-5 w-5" />
-            Business Dashboard
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Manage your stores and food offerings to help reduce waste
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <AuthenticatedLayout 
+      onSearch={handleSearch}
+      searchPlaceholder="Search stores, food bags..."
+    >
+      <div className="space-y-6 p-6">
+        {/* Business Overview */}
+        <Card className="glass-card border-border/30 shadow-xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Store className="h-5 w-5" />
+              Business Dashboard
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Manage your stores and food offerings to help reduce waste
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="glass-card border-border/20">
               <CardContent className="p-4">                <div className="flex items-center gap-2">
                   <Store className="h-8 w-8 text-primary" />
                   <div>
-                    <p className="text-2xl font-bold">{stores.length}</p>
+                    <p className="text-2xl font-bold">{filteredStores.length}</p>
                     <p className="text-sm text-muted-foreground">Active Stores</p>
                   </div>
                 </div>
@@ -232,7 +256,7 @@ export function BusinessDashboard() {
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="h-8 w-8 text-primary" />
                   <div>
-                    <p className="text-2xl font-bold">{foodBags.length}</p>
+                    <p className="text-2xl font-bold">{filteredFoodBags.length}</p>
                     <p className="text-sm text-muted-foreground">Food Bags Available</p>
                   </div>
                 </div>
@@ -243,7 +267,7 @@ export function BusinessDashboard() {
               <CardContent className="p-4">                <div className="flex items-center gap-2">
                   <Package className="h-8 w-8 text-primary" />
                   <div>
-                    <p className="text-2xl font-bold">{foodBags.reduce((sum, bag) => sum + bag.quantity_left, 0)}</p>
+                    <p className="text-2xl font-bold">{filteredFoodBags.reduce((sum, bag) => sum + bag.quantity_left, 0)}</p>
                     <p className="text-sm text-muted-foreground">Items Available</p>
                   </div>
                 </div>
@@ -347,9 +371,8 @@ export function BusinessDashboard() {
           ) : stores.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               You haven't created any stores yet. Create your first store to start selling food bags.
-            </div>
-          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {stores.map((store) => (
+            </div>          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredStores.map((store) => (
                 <Card key={store.id} className={`cursor-pointer transition-all glass-card border-border/30 hover:shadow-xl hover:scale-[1.02] ${selectedStore?.id === store.id ? 'ring-2 ring-primary' : ''}`}>
                   <CardContent className="p-4" onClick={() => setSelectedStore(store)}>
                     <div className="flex items-start justify-between mb-3">
@@ -502,9 +525,8 @@ export function BusinessDashboard() {
             {foodBags.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 No food bags created for this store yet. Create your first food bag to start reducing waste.
-              </div>
-            ) : (              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {foodBags.map((foodBag) => (
+              </div>            ) : (              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredFoodBags.map((foodBag) => (
                   <Card key={foodBag.id} className="glass-card border-border/30 hover:shadow-xl hover:scale-[1.02] transition-all">
                     <CardContent className="p-4">
                       {foodBag.image_url && (
@@ -563,12 +585,12 @@ export function BusinessDashboard() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                ))}        </div>
             )}
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </AuthenticatedLayout>
   )
 }

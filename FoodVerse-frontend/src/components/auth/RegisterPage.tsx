@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Eye, EyeOff, Loader2, ArrowLeft, Leaf, Users, Store } from "lucide-react"
+import { Eye, EyeOff, Loader2, ArrowLeft, Leaf } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -17,12 +17,10 @@ import { useToast } from "@/components/shared/ToastProvider"
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Please confirm your password"),
+  password: z.string().min(6, "Password must be at least 6 characters"),  confirmPassword: z.string().min(6, "Please confirm your password"),
   phone: z.string().optional(),
-  address: z.string().optional(),  userType: z.enum(["consumer", "seller"], {
-    required_error: "Please select an account type",
-  }),
+  address: z.string().optional(),
+  userType: z.literal("consumer")
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -32,15 +30,11 @@ type RegisterForm = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const { register: registerUser, isLoading } = useAuth()
   const { addToast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Get user type from URL parameter if provided
-  const urlUserType = searchParams.get('type')
-  const initialUserType = (urlUserType === 'consumer' || urlUserType === 'seller') ? urlUserType : 'consumer'
   
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -51,15 +45,9 @@ export function RegisterPage() {
       confirmPassword: "",
       phone: "",
       address: "",
-      userType: initialUserType,
+      userType: "consumer",
     },
   })
-  // Update form when URL parameter changes
-  useEffect(() => {
-    if (urlUserType === 'consumer' || urlUserType === 'seller') {
-      form.setValue('userType', urlUserType)
-    }
-  }, [urlUserType, form])
 
   const onSubmit = async (data: RegisterForm) => {
     setError(null)
@@ -195,10 +183,10 @@ export function RegisterPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <CardTitle className="text-2xl font-bold text-foreground">Join FoodVerse</CardTitle>
+              >                <CardTitle className="text-2xl font-bold text-foreground">Join FoodVerse</CardTitle>
                 <CardDescription className="text-muted-foreground mt-2">
-                  Create your account and start reducing food waste today
+                  Create your consumer account and start reducing food waste today.
+                  Want to become a seller? You can apply to sell after registering!
                 </CardDescription>
               </motion.div>
 
@@ -262,51 +250,11 @@ export function RegisterPage() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-              </motion.div>
-              
-              <motion.div
+                />              </motion.div>
+                <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 }}
-              >
-                <FormField
-                  control={form.control}
-                  name="userType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account Type</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-3">
-                          <Button
-                            type="button"
-                            variant={field.value === "consumer" ? "default" : "outline"}
-                            className="flex-1 h-12 flex items-center space-x-2"
-                            onClick={() => field.onChange("consumer")}
-                          >
-                            <Users className="h-4 w-4" />
-                            <span>Consumer</span>
-                          </Button>                          <Button
-                            type="button"
-                            variant={field.value === "seller" ? "default" : "outline"}
-                            className="flex-1 h-12 flex items-center space-x-2"
-                            onClick={() => field.onChange("seller")}
-                          >
-                            <Store className="h-4 w-4" />
-                            <span>Seller</span>
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
               >
                 <FormField
                   control={form.control}
@@ -331,7 +279,7 @@ export function RegisterPage() {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.9 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
               >
                 <FormField
                   control={form.control}
@@ -351,11 +299,10 @@ export function RegisterPage() {
                   )}
                 />
               </motion.div>
-              
-              <motion.div
+                <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 1.0 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
               >
                 <FormField
                   control={form.control}
@@ -391,11 +338,10 @@ export function RegisterPage() {
                   )}
                 />
               </motion.div>
-              
-              <motion.div
+                <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 1.1 }}
+                transition={{ duration: 0.5, delay: 1.0 }}
               >
                 <FormField
                   control={form.control}
@@ -441,11 +387,10 @@ export function RegisterPage() {
                   {error}
                 </motion.div>
               )}
-              
-              <motion.div
+                <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1.2 }}
+                transition={{ duration: 0.5, delay: 1.1 }}
               >
                 <Button 
                   type="submit" 
@@ -458,10 +403,9 @@ export function RegisterPage() {
               </motion.div>
             </form>          </Form>
           
-          <motion.div
-            initial={{ opacity: 0 }}
+          <motion.div            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1.3 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
             className="mt-8 text-center"
           >
             <div className="relative">

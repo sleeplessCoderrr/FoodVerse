@@ -53,6 +53,7 @@ func main() {
 	storeRepo := repository.NewStoreRepository(db)
 	foodBagRepo := repository.NewFoodBagRepository(db)
 	orderRepo := repository.NewOrderRepository(db)
+	sellerRequestRepo := repository.NewSellerRequestRepository(db)
 
 	// Initialize services
 	jwtService := service.NewJWTService(cfg.JWTSecret, cfg.JWTExpirationHours)
@@ -63,7 +64,7 @@ func main() {
 	storeController := controller.NewStoreController(storeRepo)
 	foodBagController := controller.NewFoodBagController(foodBagRepo, storeRepo)
 	orderController := controller.NewOrderController(orderRepo, foodBagRepo)
-	sellerRequestController := controller.NewSellerRequestController(db)
+	sellerRequestController := controller.NewSellerRequestController(sellerRequestRepo, userRepo)
 
 	// App Router
 	router := gin.Default()

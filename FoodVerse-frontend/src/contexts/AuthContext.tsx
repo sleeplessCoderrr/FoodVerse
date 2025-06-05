@@ -8,6 +8,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string, userType: 'consumer' | 'seller', phone?: string, address?: string) => Promise<void>
   logout: () => void
+  updateUser: (userData: User) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -68,10 +69,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(false)
     }
   }
-
   const logout = () => {
     authService.logout()
     setUser(null)
+  }
+  const updateUser = (userData: User) => {
+    setUser(userData)
+    // Update the stored user data in localStorage
+    localStorage.setItem('foodverse-user', JSON.stringify(userData))
   }
 
   const value: AuthContextType = {
@@ -80,7 +85,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     login,
     register,
-    logout
+    logout,
+    updateUser
   }
 
   return (

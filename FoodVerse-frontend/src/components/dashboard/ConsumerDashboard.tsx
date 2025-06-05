@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/shared/ToastProvider'
+import { AuthenticatedLayout } from '@/components/shared/AuthenticatedLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,20 +9,22 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { MapPin, Clock, Star, Search, ShoppingBag, Plus, Minus } from 'lucide-react'
+import { MapPin, Clock, Star, Search, ShoppingBag, Plus, Minus, User, History, TrendingUp, Heart, Gift } from 'lucide-react'
 import { storeService, type Store } from '@/services/storeService'
 import { foodBagService, type FoodBag } from '@/services/foodBagService'
 import { orderService } from '@/services/orderService'
+import { userService } from '@/services/userService'
 
 export function ConsumerDashboard() {
+  const navigate = useNavigate()
   const [stores, setStores] = useState<Store[]>([])
   const [foodBags, setFoodBags] = useState<FoodBag[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  
-  // Order dialog state
+  const [userStats, setUserStats] = useState<any>(null)
+    // Order dialog state
   const [selectedFoodBag, setSelectedFoodBag] = useState<FoodBag | null>(null)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
   const [orderQuantity, setOrderQuantity] = useState(1)
@@ -36,7 +40,6 @@ export function ConsumerDashboard() {
     'grocery',
     'cafe'
   ]
-
   useEffect(() => {
     // Get user's location
     if (navigator.geolocation) {
@@ -57,7 +60,19 @@ export function ConsumerDashboard() {
       // Default location if geolocation not supported
       setUserLocation({ lat: -6.2088, lng: 106.8456 })
     }
+
+    // Load user stats
+    loadUserStats()
   }, [])
+
+  const loadUserStats = async () => {
+    try {
+      const stats = await userService.getUserStats()
+      setUserStats(stats)
+    } catch (error) {
+      console.error('Error loading user stats:', error)
+    }
+  }
 
   useEffect(() => {
     if (userLocation) {
@@ -100,7 +115,6 @@ export function ConsumerDashboard() {
       setIsLoading(false)
     }
   }
-
   const formatDistance = (distance?: number) => {
     if (!distance) return ''
     return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`
@@ -111,12 +125,12 @@ export function ConsumerDashboard() {
       minute: '2-digit'
     })
   }
+
   const handleOrderFood = async () => {
     if (!selectedFoodBag) return
 
     setIsCreatingOrder(true)
-    try {
-      await orderService.createOrder({
+    try {      await orderService.createOrder({
         food_bag_id: selectedFoodBag.id,
         quantity: orderQuantity,
         notes: orderNotes
@@ -134,8 +148,9 @@ export function ConsumerDashboard() {
       setOrderQuantity(1)
       setOrderNotes('')
 
-      // Refresh food bags to update quantities
+      // Refresh data
       loadNearbyData()
+      loadUserStats()
     } catch (error) {
       console.error('Error creating order:', error)
       addToast({
@@ -154,33 +169,106 @@ export function ConsumerDashboard() {
     setOrderNotes('')
     setIsOrderDialogOpen(true)
   }
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    // The search will be triggered by the useEffect dependency
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 space-y-6 p-6">
-      {/* Search and Filter Section */}
+    <AuthenticatedLayout 
+      onSearch={handleSearch}
+      searchPlaceholder="Search for food, stores, restaurants..."
+    >
+      <div className="space-y-6 p-6">
+      {/* Header Section with User Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card className="glass-card border-border/30 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <ShoppingBag className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Orders</p>
+                <p className="text-2xl font-bold">{userStats?.totalOrders || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass-card border-border/30 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Money Saved</p>
+                <p className="text-2xl font-bold">${userStats?.totalSavings || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass-card border-border/30 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <Heart className="h-5 w-5 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Waste Reduced</p>
+                <p className="text-2xl font-bold">{userStats?.wasteReduced || 0}kg</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="glass-card border-border/30 shadow-xl">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500/10 rounded-lg">
+                <Gift className="h-5 w-5 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Rewards</p>
+                <p className="text-2xl font-bold">{userStats?.rewardPoints || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>      {/* Quick Actions */}
+      <div className="flex gap-4 mb-6">
+        <Button 
+          onClick={() => navigate('/profile')} 
+          variant="outline" 
+          className="flex items-center gap-2"
+        >
+          <User className="h-4 w-4" />
+          Profile
+        </Button>
+        <Button 
+          onClick={() => navigate('/orders')} 
+          variant="outline" 
+          className="flex items-center gap-2"
+        >
+          <History className="h-4 w-4" />
+          Order History
+        </Button>
+      </div>
+
+      {/* Food Discovery Section */}
       <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Search className="h-5 w-5" />
-            Find Food Near You
+            Food Near You
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             Discover discounted food from local businesses and help reduce waste
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <Input
-              placeholder="Search for stores or food..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={loadNearbyData} disabled={isLoading}>
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
-          </div>
-          
           <div className="flex gap-2 flex-wrap">
             {categories.map((category) => (
               <Button
@@ -356,9 +444,7 @@ export function ConsumerDashboard() {
                     {selectedFoodBag.quantity_left} available
                   </Badge>
                 </div>
-              </div>
-
-              {/* Quantity Selection */}
+              </div>              {/* Quantity Selection */}
               <div className="space-y-2">
                 <Label htmlFor="quantity">Quantity</Label>
                 <div className="flex items-center gap-2">
@@ -416,16 +502,15 @@ export function ConsumerDashboard() {
               disabled={isCreatingOrder}
             >
               Cancel
-            </Button>
-            <Button 
+            </Button>            <Button 
               onClick={handleOrderFood}
               disabled={isCreatingOrder || !selectedFoodBag}
             >
               {isCreatingOrder ? 'Placing Order...' : `Reserve ${orderQuantity} Item${orderQuantity > 1 ? 's' : ''}`}
             </Button>
-          </DialogFooter>
-        </DialogContent>
+          </DialogFooter>        </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </AuthenticatedLayout>
   )
 }

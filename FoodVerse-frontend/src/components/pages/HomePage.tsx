@@ -178,7 +178,7 @@ export function HomePage() {
                   width: 1,
                 },
                 collisions: {
-                  enable: true,
+                  enable: false,
                 },
                 move: {
                   direction: "none",
@@ -195,7 +195,7 @@ export function HomePage() {
                     enable: true,
                     area: 800,
                   },
-                  value: 60,
+                  value: 30,
                 },
                 opacity: {
                   value: 0.3,
