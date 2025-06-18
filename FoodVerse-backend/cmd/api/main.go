@@ -44,9 +44,11 @@ func main() {
 	if err != nil {
 		panic("failed to connect to database: " + err.Error())
 	}
-
 	// Run migrations
 	migrations.Migrate(db)
+
+	// Seed database with initial data (only in development)
+	// seedDatabase(db)
 
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)

@@ -36,10 +36,10 @@ export function ConsumerDashboard() {
 
   const categories = [
     'All',
-    'bakery',
-    'restaurant', 
-    'grocery',
-    'cafe'
+    'Bakery',
+    'Restaurant', 
+    'Grocery',
+    'Cafe'
   ]
   useEffect(() => {
     // Get user's location
@@ -105,6 +105,7 @@ export function ConsumerDashboard() {
         category: selectedCategory === 'All' ? undefined : selectedCategory
       }
       const foodBagsResponse = await foodBagService.searchFoodBags(foodBagParams)
+      console.log('Food Bags Response:', foodBagsResponse.data)
       setFoodBags(foodBagsResponse.data)
     } catch (error) {
       console.error('Error loading data:', error)
@@ -197,7 +198,9 @@ export function ConsumerDashboard() {
         category: category === 'All' ? undefined : category,
         query: undefined
       }
+      console.log('Store Params:', storeParams)
       const storesResponse = await storeService.searchStores(storeParams)
+      console.log('Stores Response:', storesResponse.data)
       setStores(storesResponse.data)
       const foodBagParams = {
         latitude: userLocation.lat,
@@ -206,6 +209,7 @@ export function ConsumerDashboard() {
         category: category === 'All' ? undefined : category
       }
       const foodBagsResponse = await foodBagService.searchFoodBags(foodBagParams)
+      console.log('Food Bags Response:', foodBagsResponse.data)
       setFoodBags(foodBagsResponse.data)
     } catch (error) {
       addToast({ type: 'error', message: 'Failed to load nearby stores and food bags' })
@@ -316,18 +320,23 @@ export function ConsumerDashboard() {
       </Card>      
       {/* Available Food Bags */}
       <Card className="glass-card border-border/30 shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-foreground">
+        <CardHeader>          <CardTitle className="flex items-center gap-2 text-foreground">
             <ShoppingBag className="h-5 w-5" />
-            Available Food Bags ({foodBags.length})
+            Available Food Bags ({foodBags?.length || 0})
           </CardTitle>
-        </CardHeader>
-        <CardContent>
+        </CardHeader>        <CardContent>
           {isLoading ? (
             <div className="text-center py-8">Loading nearby food bags...</div>
-          ) : foodBags.length === 0 ? (
+          ) : !foodBags || foodBags.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No food bags available in your area. Try expanding your search radius or check back later.
+              <ShoppingBag className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium mb-2">No food bags available</p>
+              <p className="text-sm">
+                {!foodBags ? 
+                  'Unable to load food bags. Please try again.' : 
+                  'No food bags available in your area. Try expanding your search radius or check back later.'
+                }
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

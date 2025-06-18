@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -39,13 +39,17 @@ services:
         condition: service_healthy
     networks:
       - foodverse-net
-
   frontend:
     build:
       context: ./FoodVerse-frontend
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
+    volumes:
+      - ./FoodVerse-frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_HMR_PORT=5173
     depends_on:
       - backend
     networks:
