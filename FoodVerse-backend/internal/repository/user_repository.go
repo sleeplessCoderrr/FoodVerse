@@ -51,3 +51,10 @@ func (r *UserRepository) GetAllUsers() ([]model.User, error) {
 	}
 	return users, nil
 }
+
+// Get all orders for a user (for stats)
+func (r *UserRepository) GetOrdersByUserId(userId uint) ([]model.Order, error) {
+	var orders []model.Order
+	err := r.db.Where("user_id = ?", userId).Preload("FoodBag").Find(&orders).Error
+	return orders, err
+}

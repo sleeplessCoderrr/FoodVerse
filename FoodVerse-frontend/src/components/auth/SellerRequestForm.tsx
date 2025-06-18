@@ -28,6 +28,7 @@ export function SellerRequestForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [existingRequest, setExistingRequest] = useState<SellerRequest | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [aiValidationStatus, setAiValidationStatus] = useState<string | null>(null)
 
   const form = useForm<SellerRequestForm>({
     resolver: zodResolver(sellerRequestSchema),
@@ -51,7 +52,6 @@ export function SellerRequestForm() {
       // No existing request found, which is fine
     }
   }
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -77,19 +77,25 @@ export function SellerRequestForm() {
     }
 
     setUploadingImage(true)
+    setAiValidationStatus('Validating face with AI...')
+    
     try {
       const imageUrl = await sellerRequestService.uploadFaceImage(file)
       form.setValue('face_image_url', imageUrl)
+      setAiValidationStatus('✅ Human face detected and validated!')
+      
       addToast({
         type: 'success',
-        title: 'Image Uploaded',
-        message: 'Your face image has been uploaded successfully.'
+        title: 'Face Validation Successful',
+        message: 'Your face image has been validated by our AI system and uploaded successfully.'
       })
-    } catch (error) {
+    } catch (error: any) {
+      setAiValidationStatus(null)
+      
       addToast({
         type: 'error',
-        title: 'Upload Failed',
-        message: 'Failed to upload image. Please try again.'
+        title: 'Face Validation Failed',
+        message: error.message || 'Failed to validate face image. Please try again with a clearer photo.'
       })
     } finally {
       setUploadingImage(false)
@@ -144,6 +150,17 @@ export function SellerRequestForm() {
   if (existingRequest) {
     return (
       <div className="max-w-2xl mx-auto p-6">
+        <div className="mb-6 flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/profile')}
+            className="flex items-center gap-2"
+          >
+            <User className="h-4 w-4" />
+            Back to Profile
+          </Button>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -260,6 +277,17 @@ export function SellerRequestForm() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
+      <div className="mb-6 flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign('/profile')}
+          className="flex items-center gap-2"
+        >
+          <User className="h-4 w-4" />
+          Back to Profile
+        </Button>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -344,21 +372,19 @@ export function SellerRequestForm() {
                   control={form.control}
                   name="face_image_url"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center space-x-2">
+                    <FormItem>                      <FormLabel className="flex items-center space-x-2">
                         <Camera className="h-4 w-4" />
-                        <span>Face Photo</span>
+                        <span>Face Photo (AI Verified)</span>
                       </FormLabel>
                       <FormControl>
                         <div className="space-y-4">
                           <div className="flex items-center justify-center w-full">
                             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50">
                               <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                <p className="mb-2 text-sm text-muted-foreground">
+                                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />                                <p className="mb-2 text-sm text-muted-foreground">
                                   <span className="font-semibold">Click to upload</span> your face photo
                                 </p>
-                                <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+                                <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB • AI validation required</p>
                               </div>
                               <input
                                 type="file"
@@ -368,14 +394,19 @@ export function SellerRequestForm() {
                                 disabled={uploadingImage}
                               />
                             </label>
-                          </div>
-                          {uploadingImage && (
-                            <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                          </div>                          {uploadingImage && (
+                            <div className="flex items-center justify-center space-x-2 text-sm text-blue-600">
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>Uploading image...</span>
+                              <span>{aiValidationStatus || 'Processing image...'}</span>
                             </div>
                           )}
-                          {field.value && (
+                          {!uploadingImage && aiValidationStatus && (
+                            <div className="flex items-center space-x-2 text-sm text-green-600">
+                              <CheckCircle className="h-4 w-4" />
+                              <span>{aiValidationStatus}</span>
+                            </div>
+                          )}
+                          {!uploadingImage && field.value && !aiValidationStatus && (
                             <div className="flex items-center space-x-2 text-sm text-green-600">
                               <CheckCircle className="h-4 w-4" />
                               <span>Image uploaded successfully</span>
@@ -393,8 +424,8 @@ export function SellerRequestForm() {
                 />
 
                 <div className="bg-muted/30 p-4 rounded-lg">
-                  <h3 className="font-semibold text-foreground mb-2">What happens next?</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+                  <h3 className="font-semibold text-foreground mb-2">What happens next?</h3>                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Your face photo will be validated by our AI system for security</li>
                     <li>• Your application will be reviewed by our admin team</li>
                     <li>• We'll verify your identity and business information</li>
                     <li>• You'll receive an email notification about the decision</li>

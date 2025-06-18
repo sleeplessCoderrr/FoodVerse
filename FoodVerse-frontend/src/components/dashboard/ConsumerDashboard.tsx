@@ -9,11 +9,12 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { MapPin, Clock, Star, Search, ShoppingBag, Plus, Minus, User, History, TrendingUp, Heart, Gift } from 'lucide-react'
+import { MapPin, Clock, Star, Search, ShoppingBag, Plus, Minus, TrendingUp, Heart, Gift } from 'lucide-react'
 import { storeService, type Store } from '@/services/storeService'
 import { foodBagService, type FoodBag } from '@/services/foodBagService'
 import { orderService } from '@/services/orderService'
 import { userService } from '@/services/userService'
+import { formatIDR } from '@/lib/utils'
 
 export function ConsumerDashboard() {
   const navigate = useNavigate()
@@ -174,14 +175,60 @@ export function ConsumerDashboard() {
     // The search will be triggered by the useEffect dependency
   }
 
+  // Fix: Ensure category tab always triggers data load and never sets undefined category
+  const handleCategoryTab = (category: string) => {
+    setSelectedCategory(category)
+    setSearchQuery('')
+    // If userLocation is already set, trigger data load immediately
+    if (userLocation) {
+      loadNearbyDataWithCategory(category)
+    }
+  }
+
+  // Helper to load data for a specific category (prevents race condition)
+  const loadNearbyDataWithCategory = async (category: string) => {
+    if (!userLocation) return
+    setIsLoading(true)
+    try {
+      const storeParams = {
+        latitude: userLocation.lat,
+        longitude: userLocation.lng,
+        radius: 10,
+        category: category === 'All' ? undefined : category,
+        query: undefined
+      }
+      const storesResponse = await storeService.searchStores(storeParams)
+      setStores(storesResponse.data)
+      const foodBagParams = {
+        latitude: userLocation.lat,
+        longitude: userLocation.lng,
+        radius: 10,
+        category: category === 'All' ? undefined : category
+      }
+      const foodBagsResponse = await foodBagService.searchFoodBags(foodBagParams)
+      setFoodBags(foodBagsResponse.data)
+    } catch (error) {
+      addToast({ type: 'error', message: 'Failed to load nearby stores and food bags' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Helper to convert string to Title Case
+  const toTitleCase = (str: string) =>
+    str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
+
+  // Defensive: always treat stores as array
+  const safeStores = Array.isArray(stores) ? stores : []
+
   return (
     <AuthenticatedLayout 
       onSearch={handleSearch}
       searchPlaceholder="Search for food, stores, restaurants..."
     >
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-2 sm:p-4 md:p-6">
       {/* Header Section with User Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card className="glass-card border-border/30 shadow-xl">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -190,7 +237,7 @@ export function ConsumerDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Orders</p>
-                <p className="text-2xl font-bold">{userStats?.totalOrders || 0}</p>
+                <p className="text-2xl font-bold">{userStats?.total_orders ?? 0}</p>
               </div>
             </div>
           </CardContent>
@@ -204,7 +251,7 @@ export function ConsumerDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Money Saved</p>
-                <p className="text-2xl font-bold">${userStats?.totalSavings || 0}</p>
+                <p className="text-2xl font-bold">{formatIDR(userStats?.total_savings ?? 0)}</p>
               </div>
             </div>
           </CardContent>
@@ -218,7 +265,7 @@ export function ConsumerDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Waste Reduced</p>
-                <p className="text-2xl font-bold">{userStats?.wasteReduced || 0}kg</p>
+                <p className="text-2xl font-bold">{userStats?.waste_reduced ?? 0}kg</p>
               </div>
             </div>
           </CardContent>
@@ -232,30 +279,13 @@ export function ConsumerDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Rewards</p>
-                <p className="text-2xl font-bold">{userStats?.rewardPoints || 0}</p>
+                <p className="text-2xl font-bold">{userStats?.reward_points ?? 0}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>      {/* Quick Actions */}
-      <div className="flex gap-4 mb-6">
-        <Button 
-          onClick={() => navigate('/profile')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <User className="h-4 w-4" />
-          Profile
-        </Button>
-        <Button 
-          onClick={() => navigate('/orders')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <History className="h-4 w-4" />
-          Order History
-        </Button>
-      </div>
+      </div>      
+      {/* Quick Actions */}
 
       {/* Food Discovery Section */}
       <Card className="glass-card border-border/30 shadow-xl">
@@ -275,14 +305,16 @@ export function ConsumerDashboard() {
                 key={category}
                 variant={selectedCategory === category ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => handleCategoryTab(category)}
+                type="button"
               >
-                {category}
+                {toTitleCase(category)}
               </Button>
             ))}
           </div>
         </CardContent>
-      </Card>      {/* Available Food Bags */}
+      </Card>      
+      {/* Available Food Bags */}
       <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
@@ -297,60 +329,67 @@ export function ConsumerDashboard() {
             <div className="text-center py-8 text-muted-foreground">
               No food bags available in your area. Try expanding your search radius or check back later.
             </div>
-          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {foodBags.map((foodBag) => (
                 <Card key={foodBag.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/30">
                   <CardContent className="p-4">
-                    {foodBag.image_url && (
-                      <img
-                        src={foodBag.image_url}
-                        alt={foodBag.title}
-                        className="w-full h-32 object-cover rounded-lg mb-3"
-                      />
-                    )}
-                    <div className="space-y-2">
+                    <div className="cursor-pointer" onClick={() => openOrderDialog(foodBag)}>
+                      {foodBag.image_url ? (
+                        <img
+                          src={foodBag.image_url}
+                          alt={foodBag.title}
+                          className="w-full h-32 object-cover rounded-lg mb-3"
+                        />
+                      ) : (
+                        <div className="w-full h-32 bg-muted rounded-lg mb-3 flex items-center justify-center text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
                       <div>
-                        <h3 className="font-semibold text-lg">{foodBag.title}</h3>
+                        <h3 className="font-semibold text-lg hover:underline">{foodBag.title}</h3>
                         <p className="text-sm text-muted-foreground">{foodBag.store.name}</p>
                       </div>
-                      
-                      <p className="text-sm">{foodBag.description}</p>
-                      
-                      <div className="flex items-center justify-between">                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-primary">
-                            ${foodBag.discounted_price.toFixed(2)}
-                          </span>
-                          <span className="text-sm text-muted-foreground line-through">
-                            ${foodBag.original_price.toFixed(2)}
-                          </span>
-                          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                            {foodBag.discount_percent}% off
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {formatDistance(foodBag.store.distance)}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {formatTime(foodBag.pickup_time_start)} - {formatTime(foodBag.pickup_time_end)}
-                        </div>
-                        <Badge variant="outline">
-                          {foodBag.quantity_left} left
-                        </Badge>
-                      </div>                      <Button 
-                        className="w-full" 
-                        size="sm"
-                        onClick={() => openOrderDialog(foodBag)}
-                        disabled={foodBag.quantity_left === 0}
-                      >
-                        <ShoppingBag className="h-4 w-4 mr-2" />
-                        {foodBag.quantity_left === 0 ? 'Sold Out' : 'Reserve Now'}
-                      </Button>
                     </div>
+                    
+                    <p className="text-sm">{foodBag.description}</p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-primary">
+                          {formatIDR(foodBag.discounted_price)}
+                        </span>
+                        <span className="text-sm text-muted-foreground line-through">
+                          {formatIDR(foodBag.original_price)}
+                        </span>
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                          {foodBag.discount_percent}% off
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {formatDistance(foodBag.store.distance)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {formatTime(foodBag.pickup_time_start)} - {formatTime(foodBag.pickup_time_end)}
+                      </div>
+                      <Badge variant="outline">
+                        {foodBag.quantity_left} left
+                      </Badge>
+                    </div>
+                    <Button 
+                      className="w-full mt-2" 
+                      size="sm"
+                      onClick={() => openOrderDialog(foodBag)}
+                      disabled={foodBag.quantity_left === 0}
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      {foodBag.quantity_left === 0 ? 'Sold Out' : 'Reserve Now'}
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -362,45 +401,75 @@ export function ConsumerDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <MapPin className="h-5 w-5" />
-            Nearby Stores ({stores.length})
+            Nearby Stores ({safeStores.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">Loading nearby stores...</div>
-          ) : stores.length === 0 ? (
+          ) : safeStores.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No stores found in your area. Try expanding your search or changing filters.
             </div>
-          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {stores.map((store) => (
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {safeStores.map((store) => (
                 <Card key={store.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-border/30">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="cursor-pointer flex items-start gap-4" onClick={() => navigate(`/stores/${store.id}`)}>
+                      {store.image_url ? (
+                        <img
+                          src={store.image_url}
+                          alt={store.name}
+                          className="w-20 h-20 object-cover rounded-lg mb-3"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-muted rounded-lg mb-3 flex items-center justify-center text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
                       <div>
-                        <h3 className="font-semibold text-lg">{store.name}</h3>
+                        <h3 className="font-semibold text-lg hover:underline">{store.name}</h3>
                         <p className="text-sm text-muted-foreground">{store.category}</p>
-                      </div>                      <div className="flex items-center gap-1">
+                      </div>
+                      <div className="flex items-center gap-1 ml-auto">
                         <Star className="h-4 w-4 fill-primary text-primary" />
                         <span className="text-sm">{store.rating.toFixed(1)}</span>
                       </div>
                     </div>
-                    
                     <p className="text-sm mb-3">{store.description}</p>
-                    
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                       <MapPin className="h-4 w-4" />
                       <span>{store.address}</span>
                       <span>• {formatDistance(store.distance)}</span>
                     </div>
-
-                    <Button variant="outline" className="w-full" size="sm">
+                    {/* Show food bags for this store with images */}
+                    {Array.isArray(foodBags) && foodBags.filter(bag => bag.store.id === store.id).length > 0 && (
+                      <div className="mt-2">
+                        <h4 className="font-medium text-sm text-foreground mb-1">Available Food Bags:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {foodBags.filter(bag => bag.store.id === store.id).map(bag => (
+                            <div key={bag.id} className="w-28">
+                              {bag.image_url ? (
+                                <img src={bag.image_url} alt={bag.title} className="w-28 h-20 object-cover rounded mb-1" />
+                              ) : (
+                                <div className="w-28 h-20 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground mb-1">No Image</div>
+                              )}
+                              <div className="text-xs font-semibold line-clamp-1">{bag.title}</div>
+                              <div className="text-xs text-muted-foreground">${bag.discounted_price.toFixed(2)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <Button variant="outline" className="w-full mt-3" size="sm" onClick={() => navigate(`/stores/${store.id}`)}>
                       View Store
                     </Button>
                   </CardContent>
                 </Card>
               ))}
-            </div>          )}
+            </div>
+          )}
         </CardContent>
       </Card>      {/* Order Dialog */}
       <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>

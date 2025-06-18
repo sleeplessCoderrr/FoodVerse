@@ -23,7 +23,9 @@ export function AuthenticatedLayout({
         />
       )}
       <main className={showNavbar ? "pt-0" : ""}>
-        {children}
+        <div className="w-full max-w-full md:max-w-[75vw] mx-auto px-2 sm:px-4 md:px-8">
+          {children}
+        </div>
       </main>
     </div>
   )

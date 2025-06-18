@@ -114,6 +114,7 @@ func main() {
 	{
 		// User routes
 		protected.GET("/user", authController.Profile)
+		protected.GET("/user/stats", authController.UserStats)
 
 		// Seller request routes
 		protected.POST("/seller-requests", sellerRequestController.CreateSellerRequest)

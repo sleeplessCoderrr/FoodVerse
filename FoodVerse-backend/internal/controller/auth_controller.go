@@ -100,3 +100,74 @@ func (c *AuthController) Profile(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, user.ToDTO())
 }
+
+// @Summary Get user statistics
+// @Description Get statistics for the current user (orders, savings, favorite categories)
+// @Tags auth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} model.ErrorResponse
+// @Security Bearer
+// @Router /user/stats [get]
+func (c *AuthController) UserStats(ctx *gin.Context) {
+	userId, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
+		return
+	}
+
+	// Get user orders
+	orders, err := c.authService.GetOrdersByUserId(userId.(uint))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	totalOrders := len(orders)
+	completedOrders := 0
+	totalSavings := 0.0
+	categoryCount := map[string]int{}
+
+	for _, order := range orders {
+		if order.Status == "completed" {
+			completedOrders++
+		}
+		if order.FoodBag.OriginalPrice > 0 && order.FoodBag.DiscountedPrice > 0 {
+			savings := (order.FoodBag.OriginalPrice - order.FoodBag.DiscountedPrice) * float64(order.Quantity)
+			if savings > 0 {
+				totalSavings += savings
+			}
+		}
+		cat := order.FoodBag.Category
+		if cat != "" {
+			categoryCount[cat]++
+		}
+	}
+
+	// Get top 3 favorite categories
+	favoriteCategories := []string{}
+	for i := 0; i < 3; i++ {
+		maxCount := 0
+		maxCat := ""
+		for cat, count := range categoryCount {
+			if count > maxCount {
+				maxCount = count
+				maxCat = cat
+			}
+		}
+		if maxCat == "" {
+			break
+		}
+		favoriteCategories = append(favoriteCategories, maxCat)
+		delete(categoryCount, maxCat)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"total_orders":        totalOrders,
+		"completed_orders":    completedOrders,
+		"total_savings":       totalSavings,
+		"favorite_categories": favoriteCategories,
+	})
+}

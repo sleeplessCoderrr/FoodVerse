@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, MapPin, Clock, Phone, Mail, ShoppingBag, Star, CalendarDays, Copy, Navigation } from 'lucide-react'
 import { orderService, type Order } from '@/services/orderService'
 import { Separator } from '../ui/separator'
+import { formatIDR } from '@/lib/utils'
 
 export function OrderView() {
   const { id } = useParams<{ id: string }>()
@@ -214,11 +215,11 @@ export function OrderView() {
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Original Price</p>
-                      <p className="text-lg line-through">${order.food_bag.original_price.toFixed(2)}</p>
+                      <p className="text-lg line-through">{formatIDR(order.food_bag.original_price)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Discounted Price</p>
-                      <p className="text-lg font-semibold text-primary">${order.food_bag.discounted_price.toFixed(2)}</p>
+                      <p className="text-lg font-semibold text-primary">{formatIDR(order.food_bag.discounted_price)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Quantity Ordered</p>
@@ -331,16 +332,16 @@ export function OrderView() {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span>Subtotal ({order.quantity} item{order.quantity > 1 ? 's' : ''})</span>
-                <span>${order.total_price.toFixed(2)}</span>
+                <span>{formatIDR(order.total_price)}</span>
               </div>
               <div className="flex justify-between text-sm text-green-600">
                 <span>You saved</span>
-                <span>-${calculateSavings().toFixed(2)}</span>
+                <span>-{formatIDR(calculateSavings())}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-primary">${order.total_price.toFixed(2)}</span>
+                <span className="text-primary">{formatIDR(order.total_price)}</span>
               </div>
             </div>
           </CardContent>

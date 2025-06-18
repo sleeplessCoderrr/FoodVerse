@@ -87,3 +87,8 @@ func (s *AuthService) Login(input *model.LoginInput) (*model.AuthResponse, error
 func (s *AuthService) GetUserById(id uint) (*model.User, error) {
 	return s.userRepo.FindUserById(id)
 }
+
+// Get all orders for a user (for stats)
+func (s *AuthService) GetOrdersByUserId(userId uint) ([]model.Order, error) {
+	return s.userRepo.GetOrdersByUserId(userId)
+}

@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: 'http://localhost:7000/api/v1', // Updated to match backend API structure
+  baseURL: 'https://n9nmdjqd-7000.asse.devtunnels.ms/api/v1', // Updated to match backend API structure
   headers: {
     'Content-Type': 'application/json',
   },

@@ -99,6 +99,9 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
       .slice(0, 2)
   }
 
+  // Determine logo link based on authentication
+  const logoLink = user ? '/dashboard' : '/'
+
   return (
     <motion.nav 
       className={`glass sticky top-0 z-50 border-b border-border/30 backdrop-blur-md ${className}`}
@@ -114,7 +117,7 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
-            <Link to="/dashboard" className="flex items-center space-x-3 group">
+            <Link to={logoLink} className="flex items-center space-x-3 group">
               <div className="relative">
                 <img 
                   src="/logo.png" 
@@ -170,7 +173,7 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative hidden md:flex">
               <Bell className="h-4 w-4" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-destructive">
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-destructive pl-1">
                 3
               </Badge>
             </Button>

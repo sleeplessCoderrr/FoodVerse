@@ -239,6 +239,18 @@ export function StoreDetailPage() {
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
                   <Card className="glass-card border-border/30 hover:border-primary/50 transition-all duration-300 group">
+                    {/* Show food bag image at the top */}
+                    {foodBag.image_url ? (
+                      <img
+                        src={foodBag.image_url}
+                        alt={foodBag.title}
+                        className="w-full h-40 object-cover rounded-t-lg"
+                      />
+                    ) : (
+                      <div className="w-full h-40 bg-muted flex items-center justify-center text-muted-foreground rounded-t-lg">
+                        No Image
+                      </div>
+                    )}
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">

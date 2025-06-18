@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Store, MapPin, Plus, Edit, Trash2, ShoppingBag, Clock, Package } from 'lucide-react'
 import { storeService, type Store as StoreType, type StoreInput } from '@/services/storeService'
 import { foodBagService, type FoodBag, type FoodBagInput } from '@/services/foodBagService'
+import { formatIDR } from '@/lib/utils'
 
 export function BusinessDashboard() {
   const [stores, setStores] = useState<StoreType[]>([])
@@ -545,10 +546,10 @@ export function BusinessDashboard() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-lg font-bold text-primary">
-                              ${foodBag.discounted_price.toFixed(2)}
+                              {formatIDR(foodBag.discounted_price)}
                             </span>
                             <span className="text-sm text-muted-foreground line-through">
-                              ${foodBag.original_price.toFixed(2)}
+                              {formatIDR(foodBag.original_price)}
                             </span>
                           </div>
                           <Badge variant="secondary">

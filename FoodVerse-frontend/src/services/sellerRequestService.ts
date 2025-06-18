@@ -69,11 +69,49 @@ export const sellerRequestService = {
     const response = await api.put(`/seller-requests/${id}`, data)
     return response.data
   },
-
-  // Upload face image (placeholder - you'll need to implement file upload)
+  // Upload and validate face image using AI service
   async uploadFaceImage(file: File): Promise<string> {
-    // This would typically upload to a cloud storage service
-    // For now, return a placeholder URL
-    return Promise.resolve(`https://example.com/uploads/${file.name}`)
+    // First, validate the image using the AI service
+    const formData = new FormData()
+    formData.append('image', file)
+    formData.append('confidence_threshold', '0.7') // Higher threshold for better accuracy
+
+    try {
+      // Call the Flask AI service for face validation
+      const aiResponse = await fetch('https://n9nmdjqd-50006.asse.devtunnels.ms/api/v1/face-recognition/classify', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!aiResponse.ok) {
+        throw new Error(`AI service error: ${aiResponse.status}`)
+      }
+
+      const aiResult = await aiResponse.json()
+      
+      // Check if the AI service detected a human face
+      if (!aiResult.success) {
+        throw new Error(aiResult.message || 'Failed to process image')
+      }
+
+      if (!aiResult.is_human) {
+        throw new Error(`Please upload a clear photo of your face. AI confidence: ${(aiResult.confidence * 100).toFixed(1)}%`)
+      }
+
+      // If AI validation passes, create a data URL for the validated image
+      // In a real application, you would upload to cloud storage here
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => reject(new Error('Failed to process image file'))
+        reader.readAsDataURL(file)
+      })
+
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error('Failed to validate face image. Please ensure the AI service is running.')
+    }
   }
 }
