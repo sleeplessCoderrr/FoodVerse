@@ -13,9 +13,56 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - foodverse-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodverse -d foodverse"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build:
+      context: ./FoodVerse-backend
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: foodverse
+      DB_PASSWORD: foodverse
+      DB_NAME: foodverse
+      SERVER_PORT: 7000
+      JWT_SECRET: your-secret-key-here
+      JWT_EXPIRATION_HOURS: 24
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - foodverse-net
+
+  frontend:
+    build:
+      context: ./FoodVerse-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - foodverse-net
+
+  ai-service:
+    build:
+      context: ./FoodVerse-ai
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - foodverse-net
 
 volumes:
   pgdata:
 
 networks:
   foodverse-net:
+    driver: bridge
