@@ -68,7 +68,7 @@ export function AdminDashboard() {
       const response = await sellerRequestService.getSellerRequests({
         limit: 100
       })
-      setSellerRequests(response.requests)
+      if(response.requests !== null) setSellerRequests(response.requests)
     } catch (error) {
       console.error('Error loading seller requests:', error)
       addToast({
