@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	_ "github.com/FoodVerse/FoodVerse-backend/docs"
 	"github.com/FoodVerse/FoodVerse-backend/internal/config"
 	"github.com/FoodVerse/FoodVerse-backend/internal/controller"
@@ -39,16 +41,19 @@ func main() {
 	if err != nil {
 		panic("failed to load config: " + err.Error())
 	}
-
 	db, err := database.NewConnection(cfg)
 	if err != nil {
 		panic("failed to connect to database: " + err.Error())
 	}
+
 	// Run migrations
 	migrations.Migrate(db)
+	fmt.Println("🔍 DEBUG: Migrations completed, about to seed...")
 
+	fmt.Println("🔍 DEBUG: About to call seedDatabase...")
 	// Seed database with initial data (only in development)
-	// seedDatabase(db)
+	seedDatabase(db)
+	fmt.Println("🔍 DEBUG: After calling seedDatabase...")
 
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
@@ -67,6 +72,7 @@ func main() {
 	foodBagController := controller.NewFoodBagController(foodBagRepo, storeRepo)
 	orderController := controller.NewOrderController(orderRepo, foodBagRepo)
 	sellerRequestController := controller.NewSellerRequestController(sellerRequestRepo, userRepo)
+	seedController := controller.NewSeedController(db)
 
 	// App Router
 	router := gin.Default()
@@ -100,6 +106,9 @@ func main() {
 		public.POST("/register", authController.Register)
 		public.POST("/login", authController.Login)
 
+		// Seed route (for development)
+		public.POST("/seed", seedController.TriggerSeed)
+
 		// Search routes (public for browsing)
 		public.POST("/stores/search", storeController.SearchStores)
 		public.POST("/food-bags/search", foodBagController.SearchFoodBags)
@@ -123,11 +132,11 @@ func main() {
 		protected.GET("/seller-requests/my", sellerRequestController.GetMySellerRequest)
 		protected.GET("/seller-requests", sellerRequestController.GetSellerRequests)       // Admin only
 		protected.PUT("/seller-requests/:id", sellerRequestController.UpdateSellerRequest) // Admin only
-
 		// Store management routes
 		protected.POST("/stores", storeController.CreateStore)
 		protected.GET("/stores/my", storeController.GetMyStores)
 		protected.PUT("/stores/:id", storeController.UpdateStore)
+		protected.PATCH("/stores/:id/toggle-status", storeController.ToggleStoreStatus)
 		protected.DELETE("/stores/:id", storeController.DeleteStore)
 
 		// Food bag management routes
@@ -150,6 +159,7 @@ func main() {
 		protectedStoreRoutes.GET("/store/:store_id/orders", orderController.GetStoreOrders)
 	}
 
+	fmt.Println("🚀 DEBUG: Starting server on port " + cfg.ServerPort)
 	if err := router.Run(":" + cfg.ServerPort); err != nil {
 		panic("failed to start server: " + err.Error())
 	}

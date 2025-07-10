@@ -34,11 +34,22 @@ func (c *StoreController) CreateStore(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	// Get user ID from JWT token
 	userID, exists := ctx.Get("user_id")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// Check if user already has a store (sellers can only have 1 store)
+	existingStores, err := c.storeRepo.GetByOwnerID(userID.(uint))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check existing stores"})
+		return
+	}
+
+	if len(existingStores) > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "You can only have one store. Please update your existing store instead."})
 		return
 	}
 
@@ -209,6 +220,7 @@ func (c *StoreController) UpdateStore(ctx *gin.Context) {
 		return
 	}
 
+	// Update store fields
 	store.Name = input.Name
 	store.Description = input.Description
 	store.Address = input.Address
@@ -224,7 +236,54 @@ func (c *StoreController) UpdateStore(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, store)
+	ctx.JSON(http.StatusOK, store.ToResponse())
+}
+
+// @Summary Toggle store status
+// @Description Toggle store active/inactive status
+// @Tags stores
+// @Param id path int true "Store ID"
+// @Success 200 {object} model.SwaggerStore
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 403 {object} model.ErrorResponse
+// @Failure 404 {object} model.ErrorResponse
+// @Security Bearer
+// @Router /stores/{id}/toggle-status [patch]
+func (c *StoreController) ToggleStoreStatus(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid store ID"})
+		return
+	}
+
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	store, err := c.storeRepo.GetByID(uint(id))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Store not found"})
+		return
+	}
+
+	// Check if user owns the store
+	if store.OwnerID != userID.(uint) {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "Not authorized to modify this store"})
+		return
+	}
+
+	// Toggle status
+	store.IsActive = !store.IsActive
+
+	if err := c.storeRepo.Update(store); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update store status"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, store.ToResponse())
 }
 
 // @Summary Delete store

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { ConsumerDashboard } from './ConsumerDashboard'
-import { BusinessDashboard } from './BusinessDashboard'
+import { SellerDashboard } from './SellerDashboard'
 import { AdminDashboard } from './AdminDashboard'
 
 const Dashboard: React.FC = () => {
@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
     case 'consumer':
       return <ConsumerDashboard />
     case 'seller':
-      return <BusinessDashboard />
+      return <SellerDashboard />
     case 'admin':
       return <AdminDashboard />
     default:

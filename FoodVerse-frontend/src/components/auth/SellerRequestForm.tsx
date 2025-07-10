@@ -251,9 +251,8 @@ export function SellerRequestForm() {
                 <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">
                     🎉 Congratulations!
-                  </h3>
-                  <p className="text-green-700 dark:text-green-300 text-sm">
-                    Your seller application has been approved! You can now create and manage your own stores.
+                  </h3>                  <p className="text-green-700 dark:text-green-300 text-sm">
+                    Your seller application has been approved! You can now create your store and manage food offerings.
                   </p>
                 </div>
               )}
@@ -429,7 +428,7 @@ export function SellerRequestForm() {
                     <li>• Your application will be reviewed by our admin team</li>
                     <li>• We'll verify your identity and business information</li>
                     <li>• You'll receive an email notification about the decision</li>
-                    <li>• If approved, you can start creating your stores immediately</li>
+                    <li>• If approved, you can create one store to start selling</li>
                   </ul>
                 </div>
 

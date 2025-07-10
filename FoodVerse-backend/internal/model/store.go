@@ -56,6 +56,7 @@ type StoreResponse struct {
 	Category    string    `json:"category"`
 	ImageURL    string    `json:"image_url"`
 	Rating      float32   `json:"rating"`
+	IsActive    bool      `json:"is_active"`
 	Distance    float64   `json:"distance"` // in kilometers
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -74,6 +75,7 @@ func (s *Store) ToResponse() StoreResponse {
 		Category:    s.Category,
 		ImageURL:    s.ImageURL,
 		Rating:      s.Rating,
+		IsActive:    s.IsActive,
 		Distance:    0, // Will be calculated in search
 		CreatedAt:   s.CreatedAt,
 		UpdatedAt:   s.UpdatedAt,

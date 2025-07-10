@@ -12,6 +12,7 @@ export interface Store {
   category: string
   image_url?: string
   rating: number
+  is_active: boolean
   distance?: number
   created_at: string
   updated_at: string
@@ -91,11 +92,17 @@ export const storeService = {
     const response = await api.put<Store>(`/stores/${id}`, storeData)
     return { data: response.data }
   },
-
   // Delete store (seller only)
   async deleteStore(id: number): Promise<void> {
     await api.delete(`/stores/${id}`)
   },
+
+  // Toggle store status (seller only)
+  async toggleStoreStatus(id: number): Promise<{ data: Store }> {
+    const response = await api.patch<Store>(`/stores/${id}/toggle-status`)
+    return { data: response.data }
+  },
+
   // Get stores owned by current user (business owner only)
   async getOwnedStores(): Promise<{ data: Store[] }> {
     const response = await api.get<Store[]>('/stores/my')

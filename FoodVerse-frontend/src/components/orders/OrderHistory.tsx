@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/shared/ToastProvider'
+import { useAuth } from '@/contexts/AuthContext'
 import { AuthenticatedLayout } from '@/components/shared/AuthenticatedLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,11 +10,13 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Clock, MapPin, ShoppingBag, Eye, Star, CalendarDays } from 'lucide-react'
 import { orderService, type Order } from '@/services/orderService'
+import { storeService, type Store } from '@/services/storeService'
 import { formatIDR } from '@/lib/utils'
 
 export function OrderHistory() {
   const navigate = useNavigate()
   const { addToast } = useToast()
+  const { user } = useAuth()
   
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
@@ -22,19 +25,35 @@ export function OrderHistory() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('newest')
 
-  useEffect(() => {
-    loadOrders()
-  }, [])
+  // Helper function to get store ID (handles both 'id' and 'ID' properties from backend)
+  const getStoreId = (store: Store): number | undefined => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (store as any)['ID'] || (store as any)['id']
+  }
 
-  useEffect(() => {
-    filterAndSortOrders()
-  }, [orders, searchQuery, statusFilter, sortBy])
-
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     setIsLoading(true)
     try {
-      const response = await orderService.getMyOrders()
-      setOrders(response.data)
+      if (user?.user_type === 'seller') {
+        // For sellers, get orders from their store
+        const storesResponse = await storeService.getOwnedStores()
+        if (storesResponse.data.length > 0) {
+          const store = storesResponse.data[0]
+          const storeId = getStoreId(store)
+          if (storeId) {
+            const response = await orderService.getStoreOrders(storeId)
+            setOrders(response.data)
+          } else {
+            setOrders([])
+          }
+        } else {
+          setOrders([])
+        }
+      } else {
+        // For consumers, get their own orders
+        const response = await orderService.getMyOrders()
+        setOrders(response.data)
+      }
     } catch (error) {
       console.error('Error loading orders:', error)
       addToast({
@@ -44,9 +63,12 @@ export function OrderHistory() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user?.user_type, addToast])
 
-  const filterAndSortOrders = () => {
+  useEffect(() => {
+    loadOrders()  }, [loadOrders])
+
+  const filterAndSortOrders = useCallback(() => {
     let filtered = orders
 
     // Filter by search query
@@ -68,21 +90,22 @@ export function OrderHistory() {
       const dateB = new Date(b.created_at).getTime()
       
       switch (sortBy) {
-        case 'newest':
-          return dateB - dateA
         case 'oldest':
           return dateA - dateB
         case 'price-high':
           return b.total_price - a.total_price
         case 'price-low':
           return a.total_price - b.total_price
-        default:
+        default: // newest
           return dateB - dateA
       }
     })
 
     setFilteredOrders(filtered)
-  }
+  }, [orders, searchQuery, statusFilter, sortBy])
+  useEffect(() => {
+    filterAndSortOrders()
+  }, [filterAndSortOrders])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -161,9 +184,10 @@ export function OrderHistory() {
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <CalendarDays className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
+                </div>                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {user?.user_type === 'seller' ? 'Total Revenue' : 'Total Spent'}
+                  </p>
                   <p className="text-2xl font-bold">{formatIDR(summary.totalSpent)}</p>
                 </div>
               </div>
@@ -175,9 +199,10 @@ export function OrderHistory() {
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <Star className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Saved</p>
+                </div>                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {user?.user_type === 'seller' ? 'Total Discount Given' : 'Total Saved'}
+                  </p>
                   <p className="text-2xl font-bold">{formatIDR(summary.totalSavings)}</p>
                 </div>
               </div>
@@ -192,9 +217,8 @@ export function OrderHistory() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <Input
-                  placeholder="Search by food item or store name..."
+              <div className="flex-1">                <Input
+                  placeholder={user?.user_type === 'seller' ? "Search by food item or customer..." : "Search by food item or store name..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
@@ -233,7 +257,9 @@ export function OrderHistory() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Your Orders ({filteredOrders.length})</CardTitle>
+                <CardTitle>
+                  {user?.user_type === 'seller' ? 'Store Orders' : 'Your Orders'} ({filteredOrders.length})
+                </CardTitle>
                 <CardDescription>
                   Track your food rescue orders and pickup history
                 </CardDescription>

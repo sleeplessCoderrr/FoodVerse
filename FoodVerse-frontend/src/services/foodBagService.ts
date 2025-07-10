@@ -8,6 +8,7 @@ export interface FoodBag {
   original_price: number
   discounted_price: number
   discount_percent: number
+  quantity_total: number
   quantity_left: number
   pickup_time_start: string
   pickup_time_end: string

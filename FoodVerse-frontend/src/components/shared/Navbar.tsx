@@ -66,29 +66,46 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
     // Immediate search for dynamic results
     if (onSearch) {
       onSearch(e.target.value)
+    }  }
+
+  // Navigation items based on user role
+  const getNavigationItems = () => {
+    if (!user) return []
+    
+    const baseItems = [
+      { 
+        name: 'Home', 
+        href: '/dashboard', 
+        icon: Home,
+        active: location.pathname === '/dashboard'
+      }
+    ]
+
+    if (user.user_type === 'consumer') {
+      return [
+        ...baseItems,
+        { 
+          name: 'Stores', 
+          href: '/stores', 
+          icon: Store,
+          active: location.pathname === '/stores'
+        },
+        { 
+          name: 'My Orders', 
+          href: '/orders', 
+          icon: History,
+          active: location.pathname === '/orders'
+        }
+      ]    } else if (user.user_type === 'seller') {
+      return [
+        ...baseItems
+      ]
     }
+
+    return baseItems
   }
 
-  const navigationItems = [
-    { 
-      name: 'Home', 
-      href: '/dashboard', 
-      icon: Home,
-      active: location.pathname === '/dashboard'
-    },
-    { 
-      name: 'Stores', 
-      href: '/stores', 
-      icon: Store,
-      active: location.pathname === '/stores'
-    },
-    { 
-      name: 'Orders', 
-      href: '/orders', 
-      icon: History,
-      active: location.pathname === '/orders'
-    }
-  ]
+  const navigationItems = getNavigationItems()
 
   const getInitials = (name: string) => {
     return name
@@ -150,23 +167,23 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
                 </Button>
               </Link>
             ))}
-          </div>
-
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="w-full">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder={searchPlaceholder}
-                  value={searchQuery}
-                  onChange={handleSearchInputChange}
-                  className="pl-10 pr-4 h-10 bg-background/50 border-border/30 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
-                />
-              </div>
-            </form>
-          </div>
+          </div>          {/* Search Bar - Only for consumers */}
+          {user?.user_type === 'consumer' && (
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <form onSubmit={handleSearch} className="w-full">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder={searchPlaceholder}
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    className="pl-10 pr-4 h-10 bg-background/50 border-border/30 focus:border-primary/50 focus:ring-primary/20 transition-all duration-200"
+                  />
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Right Side - User Menu */}
           <div className="flex items-center space-x-3">
@@ -210,16 +227,17 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                
-                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
                 
-                <DropdownMenuItem onClick={() => navigate('/orders')} className="cursor-pointer">
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  <span>My Orders</span>
-                </DropdownMenuItem>
+                {user?.user_type === 'consumer' && (
+                  <DropdownMenuItem onClick={() => navigate('/orders')} className="cursor-pointer">
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    <span>My Orders</span>
+                  </DropdownMenuItem>
+                )}
                 
                 <DropdownMenuItem className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
@@ -262,23 +280,24 @@ export function Navbar({ onSearch, searchPlaceholder = "Search for food, stores.
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-          >
-            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-border/30">
-              {/* Mobile Search */}
-              <div className="px-3 py-2">
-                <form onSubmit={handleSearch}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder={searchPlaceholder}
-                      value={searchQuery}
-                      onChange={handleSearchInputChange}
-                      className="pl-10 pr-4 h-10 bg-background/50 border-border/30"
-                    />
-                  </div>
-                </form>
-              </div>
+          >            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-border/30">
+              {/* Mobile Search - Only for consumers */}
+              {user?.user_type === 'consumer' && (
+                <div className="px-3 py-2">
+                  <form onSubmit={handleSearch}>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder={searchPlaceholder}
+                        value={searchQuery}
+                        onChange={handleSearchInputChange}
+                        className="pl-10 pr-4 h-10 bg-background/50 border-border/30"
+                      />
+                    </div>
+                  </form>
+                </div>
+              )}
 
               {/* Mobile Navigation */}
               {navigationItems.map((item) => (

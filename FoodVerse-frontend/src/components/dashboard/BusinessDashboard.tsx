@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Store, MapPin, Plus, Edit, Trash2, ShoppingBag, Clock, Package } from 'lucide-react'
+import { Store, MapPin, Plus, Edit, Trash2, ShoppingBag, Clock, Package, Power, PowerOff } from 'lucide-react'
 import { storeService, type Store as StoreType, type StoreInput } from '@/services/storeService'
 import { foodBagService, type FoodBag, type FoodBagInput } from '@/services/foodBagService'
 import { formatIDR } from '@/lib/utils'
@@ -100,15 +100,23 @@ export function BusinessDashboard() {
           message: 'Store created successfully'
         })
       }
-      
-      setShowStoreDialog(false)
+        setShowStoreDialog(false)
       setEditingStore(null)
       loadStores()
-    } catch (error) {
-      addToast({
-        type: 'error',
-        message: `Failed to ${editingStore ? 'update' : 'create'} store`
-      })
+    } catch (error: any) {
+      // Handle the specific restriction error
+      if (error.response?.status === 400 && error.response?.data?.error?.includes('only have one store')) {
+        addToast({
+          type: 'error',
+          title: 'Store Limit Reached',
+          message: 'You can only have one store. Please update your existing store instead of creating a new one.'
+        })
+      } else {
+        addToast({
+          type: 'error',
+          message: `Failed to ${editingStore ? 'update' : 'create'} store`
+        })
+      }
     }
   }
 
@@ -156,7 +164,6 @@ export function BusinessDashboard() {
       })
     }
   }
-
   const handleDeleteStore = async (store: StoreType) => {
     if (window.confirm(`Are you sure you want to delete "${store.name}"?`)) {
       try {
@@ -176,6 +183,22 @@ export function BusinessDashboard() {
           message: 'Failed to delete store'
         })
       }
+    }
+  }
+
+  const handleToggleStoreStatus = async (store: StoreType) => {
+    try {
+      await storeService.toggleStoreStatus(store.id)
+      addToast({
+        type: 'success',
+        message: `Store ${store.is_active ? 'deactivated' : 'activated'} successfully`
+      })
+      loadStores()
+    } catch (error) {
+      addToast({
+        type: 'error',
+        message: 'Failed to update store status'
+      })
     }
   }
 
@@ -245,9 +268,8 @@ export function BusinessDashboard() {
             <Card className="glass-card border-border/20">
               <CardContent className="p-4">                <div className="flex items-center gap-2">
                   <Store className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-2xl font-bold">{filteredStores.length}</p>
-                    <p className="text-sm text-muted-foreground">Active Stores</p>
+                  <div>                    <p className="text-2xl font-bold">{filteredStores.length}</p>
+                    <p className="text-sm text-muted-foreground">Your Store</p>
                   </div>
                 </div>
               </CardContent>
@@ -279,17 +301,17 @@ export function BusinessDashboard() {
       </Card>      {/* Store Management */}
       <Card className="glass-card border-border/30 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-foreground">Your Stores</CardTitle>
-            <CardDescription className="text-muted-foreground">Manage your store locations and details</CardDescription>
-          </div>
-          <Dialog open={showStoreDialog} onOpenChange={setShowStoreDialog}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingStore(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Store
-              </Button>
-            </DialogTrigger>            <DialogContent className="max-w-md glass-card border-border/30">
+          <div>            <CardTitle className="text-foreground">Your Store</CardTitle>
+            <CardDescription className="text-muted-foreground">Manage your store location and details (limit: 1 store per seller)</CardDescription>
+          </div>          <Dialog open={showStoreDialog} onOpenChange={setShowStoreDialog}>
+            {stores.length === 0 && (
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingStore(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Store
+                </Button>
+              </DialogTrigger>
+            )}<DialogContent className="max-w-md glass-card border-border/30">
               <form onSubmit={handleStoreSubmit}>
                 <DialogHeader>
                   <DialogTitle className="text-foreground">{editingStore ? 'Edit Store' : 'Add New Store'}</DialogTitle>
@@ -297,15 +319,20 @@ export function BusinessDashboard() {
                     {editingStore ? 'Update your store information' : 'Create a new store location'}
                   </DialogDescription>
                 </DialogHeader>
-                
-                <div className="grid gap-4 py-4">
+                  <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
                   <div>
-                    <Label htmlFor="name">Store Name</Label>
-                    <Input id="name" name="name" defaultValue={editingStore?.name} required />
+                    <Label htmlFor="name">Store Name *</Label>
+                    <Input 
+                      id="name" 
+                      name="name" 
+                      defaultValue={editingStore?.name} 
+                      placeholder="Enter your store name"
+                      required 
+                    />
                   </div>
                   
                   <div>
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category">Category *</Label>
                     <Select name="category" defaultValue={editingStore?.category} required>
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
@@ -322,38 +349,88 @@ export function BusinessDashboard() {
                   
                   <div>
                     <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" name="description" defaultValue={editingStore?.description} />
+                    <Textarea 
+                      id="description" 
+                      name="description" 
+                      defaultValue={editingStore?.description} 
+                      placeholder="Describe your store and what you offer"
+                      rows={3}
+                    />
                   </div>
                   
                   <div>
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" name="address" defaultValue={editingStore?.address} required />
+                    <Label htmlFor="address">Address *</Label>
+                    <Textarea 
+                      id="address" 
+                      name="address" 
+                      defaultValue={editingStore?.address} 
+                      placeholder="Enter your complete store address"
+                      rows={2}
+                      required 
+                    />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <Label htmlFor="latitude">Latitude</Label>
-                      <Input id="latitude" name="latitude" type="number" step="any" defaultValue={editingStore?.latitude} required />
-                    </div>
-                    <div>
-                      <Label htmlFor="longitude">Longitude</Label>
-                      <Input id="longitude" name="longitude" type="number" step="any" defaultValue={editingStore?.longitude} required />
-                    </div>
+                    <Label htmlFor="coordinates" className="flex items-center gap-2">
+                      📍 Location Coordinates *
+                      <span className="text-xs text-muted-foreground">(Use Google Maps to find coordinates)</span>
+                    </Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Input 
+                          id="latitude" 
+                          name="latitude" 
+                          type="number" 
+                          step="any" 
+                          defaultValue={editingStore?.latitude} 
+                          placeholder="Latitude"
+                          required 
+                        />
+                      </div>
+                      <div>
+                        <Input 
+                          id="longitude" 
+                          name="longitude" 
+                          type="number" 
+                          step="any" 
+                          defaultValue={editingStore?.longitude} 
+                          placeholder="Longitude"
+                          required 
+                        />
+                      </div>
+                    </div>                    <p className="text-xs text-muted-foreground mt-1">
+                      Right-click on your location in Google Maps and copy the coordinates
+                    </p>
                   </div>
                   
                   <div>
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" name="phone" defaultValue={editingStore?.phone} />
+                    <Input 
+                      id="phone" 
+                      name="phone" 
+                      defaultValue={editingStore?.phone} 
+                      placeholder="Contact phone number"
+                    />
                   </div>
                   
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" defaultValue={editingStore?.email} />
+                    <Input 
+                      id="email" 
+                      name="email" 
+                      type="email" 
+                      defaultValue={editingStore?.email} 
+                      placeholder="Store contact email"
+                    />
                   </div>
                   
                   <div>
-                    <Label htmlFor="image_url">Image URL</Label>
-                    <Input id="image_url" name="image_url" defaultValue={editingStore?.image_url} />
+                    <Label htmlFor="image_url">Store Image URL</Label>
+                    <Input 
+                      id="image_url" 
+                      name="image_url" 
+                      defaultValue={editingStore?.image_url} 
+                      placeholder="https://example.com/store-image.jpg"
+                    />
                   </div>
                 </div>
                 
@@ -368,20 +445,43 @@ export function BusinessDashboard() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8">Loading your stores...</div>
-          ) : stores.length === 0 ? (
+            <div className="text-center py-8">Loading your stores...</div>          ) : stores.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              You haven't created any stores yet. Create your first store to start selling food bags.
-            </div>          ) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="mb-4">
+                <Store className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+                <h3 className="font-semibold text-lg mb-2">No Store Created Yet</h3>
+                <p className="text-sm mb-4">You can create one store to start selling food bags and help reduce waste.</p>
+                <Button onClick={() => {setEditingStore(null); setShowStoreDialog(true)}}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your Store
+                </Button>
+              </div>
+            </div>) : (            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredStores.map((store) => (
                 <Card key={store.id} className={`cursor-pointer transition-all glass-card border-border/30 hover:shadow-xl hover:scale-[1.02] ${selectedStore?.id === store.id ? 'ring-2 ring-primary' : ''}`}>
                   <CardContent className="p-4" onClick={() => setSelectedStore(store)}>
                     <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold text-lg">{store.name}</h3>
-                        <Badge variant="secondary">{store.category}</Badge>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-lg">{store.name}</h3>
+                          <Badge variant={store.is_active ? "default" : "secondary"}>
+                            {store.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <Badge variant="outline">{store.category}</Badge>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleStoreStatus(store)
+                          }}
+                          title={store.is_active ? "Deactivate store" : "Activate store"}
+                        >
+                          {store.is_active ? <Power className="h-4 w-4" /> : <PowerOff className="h-4 w-4" />}
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
@@ -390,6 +490,7 @@ export function BusinessDashboard() {
                             setEditingStore(store)
                             setShowStoreDialog(true)
                           }}
+                          title="Edit store"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -400,18 +501,25 @@ export function BusinessDashboard() {
                             e.stopPropagation()
                             handleDeleteStore(store)
                           }}
+                          title="Delete store"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     
-                    <p className="text-sm mb-2">{store.description}</p>
+                    <p className="text-sm mb-2 text-muted-foreground">{store.description}</p>
                     
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4" />
                       <span>{store.address}</span>
                     </div>
+                    
+                    {store.phone && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                        <span>📞 {store.phone}</span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

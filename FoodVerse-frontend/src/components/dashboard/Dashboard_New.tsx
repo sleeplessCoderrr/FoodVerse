@@ -3,7 +3,7 @@ import { useToast } from '@/components/shared/ToastProvider'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { ConsumerDashboard } from '@/components/dashboard/ConsumerDashboard'
-import { BusinessDashboard } from '@/components/dashboard/BusinessDashboard'
+import { SellerDashboard } from '@/components/dashboard/SellerDashboard'
 import { LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -51,7 +51,7 @@ export function Dashboard() {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Role-based dashboard content */}          {user?.user_type === 'seller' ? (
-            <BusinessDashboard />
+            <SellerDashboard />
           ) : (
             <ConsumerDashboard />
           )}
